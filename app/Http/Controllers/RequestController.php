@@ -155,9 +155,6 @@ class RequestController extends Controller
     /**
      * Zobrazí detail konkrétního požadavku.
      */
-    /**
-     * Zobrazí detail konkrétního požadavku.
-     */
     public function show(TicketRequest $request): View
     {
         // Načteme všechny související data včetně uživatelů zpráv
@@ -234,9 +231,6 @@ class RequestController extends Controller
         return back()->with('success', 'Stav požadavku byl úspěšně změněn.');
     }
 
-    /**
-     * Přidání nové zprávy k požadavku.
-     */
     /**
      * Přidání nové zprávy k požadavku.
      */
