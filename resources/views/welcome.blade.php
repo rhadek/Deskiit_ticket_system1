@@ -31,6 +31,11 @@
                             Dashboard
                         </a>
                     @else
+                    @if (Route::has('customer.login'))
+                        <a href="{{ route('customer.login') }}" class="ml-2 inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                            Zákaznické přihlášení
+                        </a>
+                    @endif
                         <a
                             href="{{ route('login') }}"
                             class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal"

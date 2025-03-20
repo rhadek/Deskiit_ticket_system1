@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Zde přidáte custom middleware
+        $middleware->alias([
+            'auth.customer' => \App\Http\Middleware\CustomerActive::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
