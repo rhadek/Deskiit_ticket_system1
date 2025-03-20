@@ -126,7 +126,56 @@ class RequestController extends Controller
         return view('customer.requests.show', compact('request'));
     }
 
-    public function addMessage(Request $request, TicketRequest $ticketRequest)
+    /**
+     * Přidání zprávy k požadavku.
+     */
+    public function addMessage(Request $request, $id)
+    {
+        $user = Auth::guard('customer')->user();
+
+        // Načtení požadavku podle ID - použijeme model TicketRequest, což je přejmenovaný model Request
+        $ticketRequest = TicketRequest::findOrFail($id);
+
+        // Kontrola, zda požadavek patří aktuálnímu uživateli
+        if ($ticketRequest->id_custuser !== $user->id) {
+            abort(403, 'Neautorizovaný přístup.');
+        }
+
+        // Kontrola, zda požadavek není uzavřen
+        if ($ticketRequest->state == 5) { // 5 = Uzavřeno
+            return back()->with('error', 'Nelze přidat zprávu k uzavřenému požadavku.');
+        }
+
+        $validated = $request->validate([
+            'message' => 'required|string|max:1000',
+        ]);
+
+        // Vytvoříme novou zprávu
+        RequestMessage::create([
+            'id_request' => $ticketRequest->id,
+            'id_custuser' => $user->id,
+            'id_user' => null, // Jedná se o zprávu od zákazníka, ne od zaměstnance
+            'inserted' => now(),
+            'state' => 1, // Aktivní
+            'kind' => 1, // Standardní typ zprávy
+            'message' => $validated['message'],
+        ]);
+
+        // Pokud byl požadavek v některých stavech jako "Vyřešeno" nebo "Čeká na zpětnou vazbu",
+        // můžeme ho automaticky přepnout zpět na "V řešení"
+        if ($ticketRequest->state == 4 || $ticketRequest->state == 3) {  // 4 = Vyřešeno, 3 = Čeká na zpětnou vazbu
+            $ticketRequest->state = 2;  // 2 = V řešení
+            $ticketRequest->save();
+        }
+
+        return redirect()->route('customer.requests.show', $ticketRequest->id)
+            ->with('success', 'Zpráva byla úspěšně přidána.');
+    }
+
+    /**
+     * Potvrzení vyřešení požadavku a jeho uzavření zákazníkem.
+     */
+    public function confirmResolution(Request $request, TicketRequest $ticketRequest)
     {
         $user = Auth::guard('customer')->user();
 
@@ -135,19 +184,26 @@ class RequestController extends Controller
             abort(403, 'Neautorizovaný přístup.');
         }
 
-        $validated = $request->validate([
-            'message' => 'required|string|max:1000',
-        ]);
+        // Kontrola, zda je požadavek ve stavu "Vyřešeno"
+        if ($ticketRequest->state != 4) { // 4 = Vyřešeno
+            return back()->with('error', 'Požadavek musí být ve stavu "Vyřešeno", aby mohl být uzavřen.');
+        }
 
+        // Změna stavu požadavku na "Uzavřeno"
+        $ticketRequest->state = 5; // 5 = Uzavřeno
+        $ticketRequest->save();
+
+        // Vytvoříme zprávu o uzavření
         RequestMessage::create([
             'id_request' => $ticketRequest->id,
             'id_custuser' => $user->id,
             'inserted' => now(),
             'state' => 1,
             'kind' => 1,
-            'message' => $validated['message'],
+            'message' => 'Požadavek byl potvrzen jako vyřešený a uzavřen.',
         ]);
 
-        return back()->with('success', 'Zpráva byla úspěšně přidána.');
+        return redirect()->route('customer.requests.show', $ticketRequest)
+            ->with('success', 'Požadavek byl úspěšně uzavřen.');
     }
 }
