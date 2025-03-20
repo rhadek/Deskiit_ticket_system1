@@ -20,9 +20,9 @@
                         {{ __('Požadavky') }}
                     </x-nav-link>
 
-                    {{-- <x-nav-link :href="route('customer.projects.index')" :active="request()->routeIs('customer.projects.*')">
+                    <x-nav-link :href="route('customer.projects.index')" :active="request()->routeIs('customer.projects.*')">
                         {{ __('Projekty') }}
-                    </x-nav-link> --}}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -82,12 +82,6 @@
             <x-responsive-nav-link :href="route('customer.requests.index')" :active="request()->routeIs('customer.requests.*')">
                 {{ __('Požadavky') }}
             </x-responsive-nav-link>
-
-            <x-nav-link :href="route('customer.projects.index')" :active="request()->routeIs('customer.projects.*')">
-                {{ __('Projekty') }}
-            </x-nav-link>
-
-            <!-- A v mobilní verzi: -->
 
             <x-responsive-nav-link :href="route('customer.projects.index')" :active="request()->routeIs('customer.projects.*')">
                 {{ __('Projekty') }}
