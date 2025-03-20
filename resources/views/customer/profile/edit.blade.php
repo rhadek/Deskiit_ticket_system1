@@ -16,7 +16,7 @@
 </head>
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-gray-100">
-        <!-- Example of a customer navigation (if any). You can include it here or via @include('partials.customer-nav') -->
+        @include('customer.layouts.navigation')
 
         <!-- Page Heading -->
         <header class="bg-white shadow">

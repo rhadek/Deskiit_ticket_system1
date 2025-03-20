@@ -138,6 +138,7 @@ Route::prefix('customer')->group(function () {
         Route::get('profile', [App\Http\Controllers\Customer\ProfileController::class, 'edit'])->name('customer.profile');
         Route::get('requests', [App\Http\Controllers\Customer\RequestController::class, 'index'])->name('customer.requests.index');
         // Další routes dle potřeby
+        Route::patch('profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
     });
 });
 
