@@ -116,4 +116,40 @@ Route::middleware('auth')->group(function () {
     Route::get('/requests/{request}', [RequestController::class, 'show'])->name('requests.show');
 });
 
+
+
+// Zákaznické routy
+Route::prefix('zakaznik')->name('customer.')->group(function () {
+    // Guest routes
+    Route::middleware('guest:customer')->group(function () {
+        Route::get('/login', [App\Http\Controllers\Customer\Auth\CustomerAuthController::class, 'create'])->name('login');
+        Route::post('/login', [App\Http\Controllers\Customer\Auth\CustomerAuthController::class, 'store']);
+    });
+
+    // Protected routes
+    Route::middleware(['auth:customer', 'auth.customer'])->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Customer\DashboardController::class, 'index'])->name('dashboard');
+        Route::post('/logout', [App\Http\Controllers\Customer\Auth\CustomerAuthController::class, 'destroy'])->name('logout');
+
+        // Profil
+        Route::get('/profile', [App\Http\Controllers\Customer\ProfileController::class, 'edit'])->name('profile');
+        Route::patch('/profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('profile.update');
+
+        // Požadavky
+        Route::get('/requests', [App\Http\Controllers\Customer\RequestController::class, 'index'])->name('requests.index');
+        Route::get('/requests/create', [App\Http\Controllers\Customer\RequestController::class, 'create'])->name('requests.create');
+        Route::post('/requests', [App\Http\Controllers\Customer\RequestController::class, 'store'])->name('requests.store');
+        Route::get('/requests/{request}', [App\Http\Controllers\Customer\RequestController::class, 'show'])->name('requests.show');
+        Route::post('/requests/{request}/messages', [App\Http\Controllers\Customer\RequestController::class, 'addMessage'])->name('requests.add-message');
+
+        // Projekty
+        Route::get('/projects', [App\Http\Controllers\Customer\ProjectController::class, 'index'])->name('projects.index');
+        Route::get('/projects/{project}', [App\Http\Controllers\Customer\ProjectController::class, 'show'])->name('projects.show');
+        Route::get('/projects/{project}/items', [App\Http\Controllers\Customer\ProjectController::class, 'items'])->name('projects.items');
+    });
+});
+
+
+
 require __DIR__.'/auth.php';
+
