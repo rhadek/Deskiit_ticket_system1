@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }} - Detail projektu</title>
+    <title>{{ config('app.name', 'Laravel') }} - Detail projektové položky</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -23,11 +23,12 @@
             <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between">
                     <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                        {{ __('Detail projektu: ') }} {{ $project->name }}
+                        {{ __('Detail projektové položky: ') }} {{ $projectItem->name }}
                     </h2>
                     <div>
-                        <a href="{{ route('customer.projects.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
-                            {{ __('Zpět na seznam') }}
+                        <a href="{{ route('customer.projects.show', $projectItem->project) }}"
+                           class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                            {{ __('Zpět na projekt') }}
                         </a>
                     </div>
                 </div>
@@ -38,26 +39,37 @@
         <main>
             <div class="py-12">
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <!-- Informace o projektu -->
+                    <!-- Informace o projektové položce -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                         <div class="p-6 text-gray-900">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Informace o projektu</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Informace o projektové položce</h3>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
+                                    <p class="text-sm font-semibold">Projekt:</p>
+                                    <p class="text-gray-700">
+                                        <a href="{{ route('customer.projects.show', $projectItem->project) }}" class="text-blue-600 hover:text-blue-900">
+                                            {{ $projectItem->project->name }}
+                                        </a>
+                                    </p>
+                                </div>
+
+                                <div>
                                     <p class="text-sm font-semibold">Firma:</p>
-                                    <p class="text-gray-700">{{ $project->customer->name }}</p>
+                                    <p class="text-gray-700">
+                                        {{ $projectItem->project->customer->name }}
+                                    </p>
                                 </div>
 
                                 <div>
                                     <p class="text-sm font-semibold">Název:</p>
-                                    <p class="text-gray-700">{{ $project->name }}</p>
+                                    <p class="text-gray-700">{{ $projectItem->name }}</p>
                                 </div>
 
                                 <div>
                                     <p class="text-sm font-semibold">Stav:</p>
                                     <p class="text-gray-700">
-                                        @if ($project->state == 1)
+                                        @if ($projectItem->state == 1)
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aktivní</span>
                                         @else
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Neaktivní</span>
@@ -68,12 +80,12 @@
                                 <div>
                                     <p class="text-sm font-semibold">Typ:</p>
                                     <p class="text-gray-700">
-                                        @if ($project->kind == 1)
+                                        @if ($projectItem->kind == 1)
                                             Standardní
-                                        @elseif ($project->kind == 2)
-                                            VIP
-                                        @elseif ($project->kind == 3)
-                                            Korporátní
+                                        @elseif ($projectItem->kind == 2)
+                                            Systémová
+                                        @elseif ($projectItem->kind == 3)
+                                            Prioritní
                                         @else
                                             Neznámý
                                         @endif
@@ -83,63 +95,66 @@
                         </div>
                     </div>
 
-                    <!-- Projektové položky -->
+                    <!-- Požadavky -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                         <div class="p-6 text-gray-900">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Projektové položky</h3>
+                            <div class="flex justify-between mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Moje požadavky</h3>
+                                <a href="{{ route('customer.requests.create', ['id_projectitem' => $projectItem->id]) }}"
+                                   class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
+                                    {{ __('Nový požadavek') }}
+                                </a>
+                            </div>
 
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Název</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vytvořeno</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stav</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Typ</th>
                                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Akce</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                        @forelse ($projectItems as $item)
+                                        @forelse ($projectItem->requests as $request)
                                             <tr>
                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $item->name }}</div>
+                                                    <a href="{{ route('customer.requests.show', $request) }}" class="text-blue-600 hover:text-blue-900">
+                                                        {{ $request->name }}
+                                                    </a>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    @if ($item->state == 1)
-                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aktivní</span>
-                                                    @else
-                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Neaktivní</span>
-                                                    @endif
+                                                    {{ $request->inserted->format('d.m.Y H:i') }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    @if ($item->kind == 1)
-                                                        Standardní
-                                                    @elseif ($item->kind == 2)
-                                                        Systémová
-                                                    @elseif ($item->kind == 3)
-                                                        Prioritní
+                                                    @if ($request->state == 1)
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Nový</span>
+                                                    @elseif ($request->state == 2)
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">V řešení</span>
+                                                    @elseif ($request->state == 3)
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">Čeká na zpětnou vazbu</span>
+                                                    @elseif ($request->state == 4)
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Vyřešeno</span>
+                                                    @elseif ($request->state == 5)
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Uzavřeno</span>
                                                     @else
-                                                        Neznámý
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Neznámý</span>
                                                     @endif
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <a href="{{ route('customer.project_items.show', $item) }}" class="text-indigo-600 hover:text-indigo-900">Detail</a>
-                                                    <a href="{{ route('customer.requests.create', ['id_projectitem' => $item->id]) }}" class="ml-2 text-green-600 hover:text-green-900">Vytvořit požadavek</a>
+                                                    <a href="{{ route('customer.requests.show', $request) }}" class="text-indigo-600 hover:text-indigo-900">Detail</a>
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
                                                 <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                                    Projekt nemá žádné položky, ke kterým máte přístup.
+                                                    Nemáte žádné požadavky pro tuto projektovou položku.
                                                 </td>
                                             </tr>
                                         @endforelse
                                     </tbody>
                                 </table>
-                            </div>
-
-                            <div class="mt-4">
-                                {{ $projectItems->links() }}
                             </div>
                         </div>
                     </div>

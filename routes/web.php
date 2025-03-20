@@ -151,6 +151,10 @@ Route::prefix('customer')->group(function () {
 
         Route::post('requests/{id}/messages', [App\Http\Controllers\Customer\RequestController::class, 'addMessage'])
         ->name('customer.requests.add-message');
+
+        Route::get('project-items/{projectItem}', [App\Http\Controllers\Customer\ProjectItemController::class, 'show'])
+        ->name('customer.project_items.show')
+        ->middleware(['auth:customer', 'auth.customer']);
     });
 });
 
