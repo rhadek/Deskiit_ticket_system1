@@ -139,6 +139,7 @@ Route::prefix('customer')->group(function () {
         Route::get('requests', [App\Http\Controllers\Customer\RequestController::class, 'index'])->name('customer.requests.index');
         // Další routes dle potřeby
         Route::patch('profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
+        Route::delete('profile', [App\Http\Controllers\Customer\ProfileController::class, 'destroy'])->name('customer.profile.destroy');
     });
 });
 
