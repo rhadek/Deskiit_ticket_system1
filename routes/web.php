@@ -140,6 +140,21 @@ Route::prefix('customer')->group(function () {
         // Další routes dle potřeby
         Route::patch('profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
         Route::delete('profile', [App\Http\Controllers\Customer\ProfileController::class, 'destroy'])->name('customer.profile.destroy');
+
+        // V routes/web.php, v sekci middleware(['auth:customer', 'auth.customer'])
+Route::get('requests/create', [App\Http\Controllers\Customer\RequestController::class, 'create'])->name('customer.requests.create');
+Route::post('requests', [App\Http\Controllers\Customer\RequestController::class, 'store'])->name('customer.requests.store');
+Route::get('requests/{request}', [App\Http\Controllers\Customer\RequestController::class, 'show'])->name('customer.requests.show');
+Route::post('requests/{request}/messages', [App\Http\Controllers\Customer\RequestController::class, 'addMessage'])->name('customer.requests.add-message');
+
+// V sekci middleware(['auth:customer', 'auth.customer']) v routes/web.php přidejte:
+
+// Přístup k projektům pro zákaznické uživatele
+Route::get('projects', [App\Http\Controllers\Customer\ProjectController::class, 'index'])->name('customer.projects.index');
+Route::get('projects/{project}', [App\Http\Controllers\Customer\ProjectController::class, 'show'])->name('customer.projects.show');
+
+// Upravení routy pro vytvoření požadavku, aby podporovala předání ID projektové položky
+Route::get('requests/create/{id_projectitem?}', [App\Http\Controllers\Customer\RequestController::class, 'create'])->name('customer.requests.create');
     });
 });
 

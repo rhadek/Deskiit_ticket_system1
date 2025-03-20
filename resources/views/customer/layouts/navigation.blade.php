@@ -83,9 +83,15 @@
                 {{ __('Požadavky') }}
             </x-responsive-nav-link>
 
-            {{-- <x-responsive-nav-link :href="route('customer.projects.index')" :active="request()->routeIs('customer.projects.*')">
+            <x-nav-link :href="route('customer.projects.index')" :active="request()->routeIs('customer.projects.*')">
                 {{ __('Projekty') }}
-            </x-responsive-nav-link> --}}
+            </x-nav-link>
+
+            <!-- A v mobilní verzi: -->
+
+            <x-responsive-nav-link :href="route('customer.projects.index')" :active="request()->routeIs('customer.projects.*')">
+                {{ __('Projekty') }}
+            </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
