@@ -21,8 +21,16 @@ class RequestController extends Controller
         $user = Auth::guard('customer')->user();
 
         // Filtry
-        $query = TicketRequest::where('id_custuser', $user->id)
-            ->with(['projectItem.project']);
+        if ($user->kind == 3) {
+            // Pro adminy zobrazíme všechny požadavky firmy
+            $query = TicketRequest::whereHas('projectItem.project', function($q) use ($user) {
+                $q->where('id_customer', $user->id_customer);
+            })->with(['projectItem.project']);
+        } else {
+            // Pro běžné uživatele jen jejich požadavky
+            $query = TicketRequest::where('id_custuser', $user->id)
+                ->with(['projectItem.project']);
+        }
 
         if ($request->has('state') && $request->state != '') {
             $query->where('state', $request->state);
@@ -35,6 +43,35 @@ class RequestController extends Controller
         $requests = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('customer.requests.index', compact('requests'));
+    }
+
+    public function show(TicketRequest $request)
+    {
+        $user = Auth::guard('customer')->user();
+
+        // Načteme související data pro kontrolu přístupu
+        $request->load('projectItem.project');
+
+        // Kontrola, zda požadavek patří ke stejné firmě jako uživatel
+        if ($request->projectItem->project->id_customer !== $user->id_customer) {
+            abort(403, 'Neautorizovaný přístup.');
+        }
+
+        // Pro běžné uživatele kontrolujeme, zda je to jejich požadavek
+        if ($user->kind != 3 && $request->id_custuser !== $user->id) {
+            abort(403, 'Neautorizovaný přístup.');
+        }
+
+        $request->load([
+            'projectItem.project.customer',
+            'messages' => function ($query) {
+                $query->orderBy('inserted', 'asc');
+            },
+            'messages.user',
+            'messages.customerUser',
+        ]);
+
+        return view('customer.requests.show', compact('request'));
     }
 
     public function create(Request $request, $id_projectitem = null)
@@ -105,26 +142,7 @@ class RequestController extends Controller
             ->with('success', 'Požadavek byl úspěšně vytvořen.');
     }
 
-    public function show(TicketRequest $request)
-    {
-        $user = Auth::guard('customer')->user();
 
-        // Kontrola, zda požadavek patří aktuálnímu uživateli
-        if ($request->id_custuser !== $user->id) {
-            abort(403, 'Neautorizovaný přístup.');
-        }
-
-        $request->load([
-            'projectItem.project.customer',
-            'messages' => function ($query) {
-                $query->orderBy('inserted', 'asc');
-            },
-            'messages.user',
-            'messages.customerUser',
-        ]);
-
-        return view('customer.requests.show', compact('request'));
-    }
 
     /**
      * Přidání zprávy k požadavku.

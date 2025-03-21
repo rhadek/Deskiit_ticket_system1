@@ -1,14 +1,15 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\CustomerUserController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\ProjectItemController;
-use App\Http\Controllers\RequestController;
-use App\Http\Controllers\RequestReportController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\IsAdmin;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RequestController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ProjectItemController;
+use App\Http\Controllers\CustomerUserController;
+use App\Http\Controllers\RequestReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -155,6 +156,44 @@ Route::prefix('customer')->group(function () {
         Route::get('project-items/{projectItem}', [App\Http\Controllers\Customer\ProjectItemController::class, 'show'])
         ->name('customer.project_items.show')
         ->middleware(['auth:customer', 'auth.customer']);
+
+
+        Route::group(['middleware' => function ($request, $next) {
+            if (Auth::guard('customer')->user()->kind != 3) {
+                abort(403, 'Nemáte oprávnění pro přístup k této funkci.');
+            }
+            return $next($request);
+        }], function () {
+            // Routes pro správu projektů
+            Route::get('projects/create', [App\Http\Controllers\Customer\ProjectController::class, 'create'])
+                ->name('customer.projects.create');
+            Route::post('projects', [App\Http\Controllers\Customer\ProjectController::class, 'store'])
+                ->name('customer.projects.store');
+            Route::get('projects/{project}/edit', [App\Http\Controllers\Customer\ProjectController::class, 'edit'])
+                ->name('customer.projects.edit');
+            Route::put('projects/{project}', [App\Http\Controllers\Customer\ProjectController::class, 'update'])
+                ->name('customer.projects.update');
+            Route::delete('projects/{project}', [App\Http\Controllers\Customer\ProjectController::class, 'destroy'])
+                ->name('customer.projects.destroy');
+
+            // Routes pro správu projektových položek
+            Route::get('project-items/create', [App\Http\Controllers\Customer\ProjectItemController::class, 'create'])
+                ->name('customer.project_items.create');
+            Route::post('project-items', [App\Http\Controllers\Customer\ProjectItemController::class, 'store'])
+                ->name('customer.project_items.store');
+            Route::get('project-items/{projectItem}/edit', [App\Http\Controllers\Customer\ProjectItemController::class, 'edit'])
+                ->name('customer.project_items.edit');
+            Route::put('project-items/{projectItem}', [App\Http\Controllers\Customer\ProjectItemController::class, 'update'])
+                ->name('customer.project_items.update');
+            Route::delete('project-items/{projectItem}', [App\Http\Controllers\Customer\ProjectItemController::class, 'destroy'])
+                ->name('customer.project_items.destroy');
+
+            // Správa uživatelů projektových položek
+            Route::get('project-items/{projectItem}/assign-users', [App\Http\Controllers\Customer\ProjectItemController::class, 'assignUsers'])
+                ->name('customer.project_items.assign_users');
+            Route::post('project-items/{projectItem}/assign-users', [App\Http\Controllers\Customer\ProjectItemController::class, 'storeAssignments'])
+                ->name('customer.project_items.store_assignments');
+        });
     });
 });
 
