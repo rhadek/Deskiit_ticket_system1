@@ -67,14 +67,42 @@
                             <p class="text-gray-700">{{ $projectItem->name }}</p>
                         </div>
 
+                        <!-- Tento kód vložte do vašeho project_items/show.blade.php v části, kde se zobrazuje stav položky -->
+
                         <div>
                             <p class="text-sm font-semibold">Stav:</p>
                             <p class="text-gray-700">
-                                @if ($projectItem->state == 1)
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aktivní</span>
-                                @else
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Neaktivní</span>
-                                @endif
+                                @php
+                                    $statusColor = match ((int)$projectItem->state) {
+                                        1 => 'bg-blue-100 text-blue-800',
+                                        2 => 'bg-yellow-100 text-yellow-800',
+                                        3 => 'bg-purple-100 text-purple-800',
+                                        4 => 'bg-green-100 text-green-800',
+                                        5 => 'bg-gray-100 text-gray-800',
+                                        default => 'bg-gray-100 text-gray-800'
+                                    };
+                                @endphp
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusColor }}">
+                                    @switch($projectItem->state)
+                                        @case(1)
+                                            Nový
+                                            @break
+                                        @case(2)
+                                            V řešení
+                                            @break
+                                        @case(3)
+                                            Čeká na zpětnou vazbu
+                                            @break
+                                        @case(4)
+                                            Vyřešeno
+                                            @break
+                                        @case(5)
+                                            Uzavřeno
+                                            @break
+                                        @default
+                                            Neznámý stav
+                                    @endswitch
+                                </span>
                             </p>
                         </div>
 

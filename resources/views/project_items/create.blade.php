@@ -36,8 +36,11 @@
                         <div class="mt-4">
                             <x-input-label for="state" :value="__('Stav')" />
                             <select id="state" name="state" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
-                                <option value="1" selected>Aktivní</option>
-                                <option value="0">Neaktivní</option>
+                                <option value="1" selected>Nový</option>
+                                <option value="2">V řešení</option>
+                                <option value="3">Čeká na zpětnou vazbu</option>
+                                <option value="4">Vyřešeno</option>
+                                <option value="5">Uzavřeno</option>
                             </select>
                             <x-input-error :messages="$errors->get('state')" class="mt-2" />
                         </div>
