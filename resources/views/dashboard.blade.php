@@ -178,7 +178,7 @@
                             </div>
 
                             <!-- Group items by kind -->
-                            <div>
+                            {{-- <div>
                                 <h4 class="font-medium text-gray-700 mb-2">Podle typu:</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     @forelse($grouped_by_kind as $kind => $items)
@@ -206,7 +206,7 @@
                                         </div>
                                     @endforelse
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>

@@ -8,6 +8,7 @@ use App\Models\Request as TicketRequest;
 use App\Models\ProjectItem;
 use App\Models\Project;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class UserDashboardController extends Controller
 {
@@ -16,23 +17,18 @@ class UserDashboardController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+        $selectedProjectId = $request->query('project_id');
 
         // Metriky pro dashboard
         if ($user->kind == 3) {
             // Pro admina - statistiky všech položek
             $metrics = [
-                'total_requests' => TicketRequest::whereHas('projectItem', function ($query) {
-                    $query->whereHas('users');
-                })->count(),
-                'open_requests' => TicketRequest::whereHas('projectItem', function ($query) {
-                    $query->whereHas('users');
-                })->whereIn('state', [1, 2, 3])->count(),
-                'resolved_requests' => TicketRequest::whereHas('projectItem', function ($query) {
-                    $query->whereHas('users');
-                })->whereIn('state', [4, 5])->count(),
+                'total_requests' => TicketRequest::count(),
+                'open_requests' => TicketRequest::whereIn('state', [1, 2, 3])->count(),
+                'resolved_requests' => TicketRequest::whereIn('state', [4, 5])->count(),
             ];
 
             // Pro admina - všechny projekty
@@ -41,14 +37,17 @@ class UserDashboardController extends Controller
                 ->get();
 
             // Pro admina - všechny projektové položky
-            $project_items = ProjectItem::with(['project.customer'])
-                ->get();
+            $query = ProjectItem::with(['project.customer']);
+
+            // Pokud je vybrán projekt, filtrujeme projektové položky
+            if ($selectedProjectId) {
+                $query->where('id_project', $selectedProjectId);
+            }
+
+            $project_items = $query->get();
 
             // Nejnovější požadavky
-            $recent_requests = TicketRequest::whereHas('projectItem', function ($query) {
-                $query->whereHas('users');
-            })
-                ->with(['projectItem.project.customer', 'customerUser'])
+            $recent_requests = TicketRequest::with(['projectItem.project.customer', 'customerUser'])
                 ->orderBy('inserted', 'desc')
                 ->limit(10)
                 ->get();
@@ -84,9 +83,15 @@ class UserDashboardController extends Controller
                 ->get();
 
             // Pro běžného uživatele - jen přiřazené projektové položky
-            $project_items = $user->projectItems()
-                ->with(['project.customer'])
-                ->get();
+            $query = $user->projectItems()
+                ->with(['project.customer']);
+
+            // Pokud je vybrán projekt, filtrujeme projektové položky
+            if ($selectedProjectId) {
+                $query->where('project_items.id_project', $selectedProjectId);
+            }
+
+            $project_items = $query->get();
 
             // Nejnovější požadavky uživatele
             $recent_requests = TicketRequest::whereHas('projectItem', function ($query) use ($user) {
@@ -119,6 +124,9 @@ class UserDashboardController extends Controller
             3 => 'Prioritní',
         ];
 
+        // Vybraný projekt pro zobrazení
+        $selectedProject = $selectedProjectId ? Project::find($selectedProjectId) : null;
+
         return view('dashboard', compact(
             'metrics',
             'projects',
@@ -127,7 +135,9 @@ class UserDashboardController extends Controller
             'grouped_by_state',
             'grouped_by_kind',
             'state_names',
-            'kind_names'
+            'kind_names',
+            'selectedProject',
+            'selectedProjectId'
         ));
     }
 }
