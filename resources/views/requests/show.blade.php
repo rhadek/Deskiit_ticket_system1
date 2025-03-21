@@ -258,11 +258,9 @@
                                             <th scope="col"
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Popis</th>
-                                            @if (auth()->user()->kind == 3)
-                                                <th scope="col"
-                                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Akce</th>
-                                            @endif
+                                            <th scope="col"
+                                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Akce</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -287,21 +285,17 @@
                                                 <td class="px-6 py-4 text-sm text-gray-500">
                                                     {{ $report->descript }}
                                                 </td>
-                                                @if (auth()->user()->kind == 3)
-                                                    <td
-                                                        class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <a href="{{ route('request-reports.edit', $report) }}"
-                                                            class="text-indigo-600 hover:text-indigo-900 mr-3">Upravit</a>
-                                                        <form action="{{ route('request-reports.destroy', $report) }}"
-                                                            method="POST" class="inline">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit"
-                                                                class="text-red-600 hover:text-red-900"
-                                                                onclick="return confirm('Opravdu chcete smazat tento report?')">Smazat</button>
-                                                        </form>
-                                                    </td>
-                                                @endif
+                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <a href="{{ route('request-reports.edit', $report) }}"
+                                                        class="text-indigo-600 hover:text-indigo-900 mr-3">Upravit</a>
+                                                    <form action="{{ route('request-reports.destroy', $report) }}"
+                                                        method="POST" class="inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-600 hover:text-red-900"
+                                                            onclick="return confirm('Opravdu chcete smazat tento report?')">Smazat</button>
+                                                    </form>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -309,16 +303,13 @@
                             </div>
                         @endif
 
-                        <!-- Formulář pro přidání nového reportu -->
-                        @if (auth()->user()->kind == 3)
-                            <div class="mt-4">
-                                <h4 class="text-md font-medium text-gray-900 mb-2">Přidat nový report práce</h4>
-                                <a href="{{ route('request-reports.create', ['id_request' => $request->id]) }}"
-                                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-                                    {{ __('Přidat report') }}
-                                </a>
-                            </div>
-                        @endif
+                        <div class="mt-4">
+                            <h4 class="text-md font-medium text-gray-900 mb-2">Přidat nový report práce</h4>
+                            <a href="{{ route('request-reports.create', ['id_request' => $request->id]) }}"
+                                class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
+                                {{ __('Přidat report') }}
+                            </a>
+                        </div>
                     </div>
                 </div>
             @endif

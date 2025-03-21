@@ -9,6 +9,36 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
+
+                    <!-- Timer Panel -->
+                    <div class="bg-gray-50 p-6 rounded-lg mb-6 border">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Stopky</h3>
+                        <div class="flex items-center justify-center mb-6">
+                            <div id="timer-display" class="text-4xl font-bold text-indigo-700 tracking-wider">
+                                00:00:00
+                            </div>
+                        </div>
+                        <div class="flex justify-center space-x-4">
+                            <button id="start-timer" type="button" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-50 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ __('Spustit') }}
+                            </button>
+                            <button id="stop-timer" type="button" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:border-red-700 focus:ring ring-red-300 disabled:opacity-50 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                                </svg>
+                                {{ __('Zastavit') }}
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-4 text-center">
+                            Pro přesné měření času použijte stopky. Čas se automaticky přenese do formuláře po zastavení.
+                        </p>
+                    </div>
+
                     <form method="POST" action="{{ route('request-reports.update', $requestReport) }}">
                         @csrf
                         @method('PUT')
@@ -87,6 +117,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Include Timer Script -->
+    <script src="{{ asset('js/timer.js') }}"></script>
 
     <script>
         // Automatické vypočítání celkového času

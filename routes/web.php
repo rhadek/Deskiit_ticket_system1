@@ -51,6 +51,8 @@ Route::middleware('auth')->group(function () {
     // Cesty pro seznam požadavků - přístupné pro všechny přihlášené
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
 
+
+
     // Admin routes - chráněné přímou instancí IsAdmin middleware
     Route::middleware(IsAdmin::class)->group(function () {
         // CRUD pro firmy
