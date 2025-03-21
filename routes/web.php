@@ -117,10 +117,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/requests/{request}', [RequestController::class, 'show'])->name('requests.show');
 });
 
-
-
-
-
 Route::prefix('customer')->group(function () {
     // Guest routes (pro nepřihlášené)
     Route::middleware('guest:customer')->group(function () {
@@ -138,26 +134,19 @@ Route::prefix('customer')->group(function () {
         Route::patch('profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
         Route::delete('profile', [App\Http\Controllers\Customer\ProfileController::class, 'destroy'])->name('customer.profile.destroy');
 
-        // Požadavky
-        Route::get('requests', [App\Http\Controllers\Customer\RequestController::class, 'index'])->name('customer.requests.index');
+        // Požadavky - nejprve specifické routy
         Route::get('requests/create/{id_projectitem?}', [App\Http\Controllers\Customer\RequestController::class, 'create'])->name('customer.requests.create');
         Route::post('requests', [App\Http\Controllers\Customer\RequestController::class, 'store'])->name('customer.requests.store');
+        Route::post('requests/{id}/messages', [App\Http\Controllers\Customer\RequestController::class, 'addMessage'])->name('customer.requests.add-message');
+        // Změníme PATCH na POST
+        Route::post('requests/{request}/confirm-resolution', [App\Http\Controllers\Customer\RequestController::class, 'confirmResolution'])
+            ->name('customer.requests.confirm-resolution');
+
+        // Index a detail požadavků
+        Route::get('requests', [App\Http\Controllers\Customer\RequestController::class, 'index'])->name('customer.requests.index');
         Route::get('requests/{request}', [App\Http\Controllers\Customer\RequestController::class, 'show'])->name('customer.requests.show');
-        Route::post('requests/{request}/messages', [App\Http\Controllers\Customer\RequestController::class, 'addMessage'])->name('customer.requests.add-message');
-        Route::patch('requests/{request}/confirm-resolution', [App\Http\Controllers\Customer\RequestController::class, 'confirmResolution'])->name('customer.requests.confirm-resolution');
 
-        // Projekty
-        Route::get('projects', [App\Http\Controllers\Customer\ProjectController::class, 'index'])->name('customer.projects.index');
-        Route::get('projects/{project}', [App\Http\Controllers\Customer\ProjectController::class, 'show'])->name('customer.projects.show');
-
-        Route::post('requests/{id}/messages', [App\Http\Controllers\Customer\RequestController::class, 'addMessage'])
-        ->name('customer.requests.add-message');
-
-        Route::get('project-items/{projectItem}', [App\Http\Controllers\Customer\ProjectItemController::class, 'show'])
-        ->name('customer.project_items.show')
-        ->middleware(['auth:customer', 'auth.customer']);
-
-
+        // Administrátorské funkce - musí být PŘED obecnými cestami projektů
         Route::group(['middleware' => function ($request, $next) {
             if (Auth::guard('customer')->user()->kind != 3) {
                 abort(403, 'Nemáte oprávnění pro přístup k této funkci.');
@@ -194,9 +183,17 @@ Route::prefix('customer')->group(function () {
             Route::post('project-items/{projectItem}/assign-users', [App\Http\Controllers\Customer\ProjectItemController::class, 'storeAssignments'])
                 ->name('customer.project_items.store_assignments');
         });
+
+        // Projekty - index a detail
+        Route::get('projects', [App\Http\Controllers\Customer\ProjectController::class, 'index'])
+            ->name('customer.projects.index');
+        Route::get('projects/{project}', [App\Http\Controllers\Customer\ProjectController::class, 'show'])
+            ->name('customer.projects.show');
+
+        // Projektové položky - detail
+        Route::get('project-items/{projectItem}', [App\Http\Controllers\Customer\ProjectItemController::class, 'show'])
+            ->name('customer.project_items.show');
     });
 });
 
-
-require __DIR__.'/auth.php';
-
+require __DIR__ . '/auth.php';

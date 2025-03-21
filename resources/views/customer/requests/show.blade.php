@@ -170,7 +170,6 @@
 
             <!-- Akce pro uzavření požadavku - zobrazí se pouze pokud je požadavek ve stavu "Vyřešeno" -->
             @if ($request->state == 4)
-                {{-- 4 = Vyřešeno --}}
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6 text-gray-900">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Potvrzení vyřešení</h3>
@@ -178,7 +177,7 @@
                             ho uzavřít.</p>
                         <form action="{{ route('customer.requests.confirm-resolution', $request) }}" method="POST">
                             @csrf
-                            @method('PATCH')
+                            <!-- Odstraníme @method('PATCH') a použijeme jen běžný POST -->
                             <div class="flex justify-end">
                                 <button type="submit"
                                     class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">

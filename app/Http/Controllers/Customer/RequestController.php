@@ -23,7 +23,7 @@ class RequestController extends Controller
         // Filtry
         if ($user->kind == 3) {
             // Pro adminy zobrazíme všechny požadavky firmy
-            $query = TicketRequest::whereHas('projectItem.project', function($q) use ($user) {
+            $query = TicketRequest::whereHas('projectItem.project', function ($q) use ($user) {
                 $q->where('id_customer', $user->id_customer);
             })->with(['projectItem.project']);
         } else {
@@ -193,35 +193,36 @@ class RequestController extends Controller
     /**
      * Potvrzení vyřešení požadavku a jeho uzavření zákazníkem.
      */
-    public function confirmResolution(Request $request, TicketRequest $ticketRequest)
-    {
-        $user = Auth::guard('customer')->user();
+    public function confirmResolution($id)
+{
+    $user = Auth::guard('customer')->user();
+    $ticketRequest = \App\Models\Request::findOrFail($id);
 
-        // Kontrola, zda požadavek patří aktuálnímu uživateli
-        if ($ticketRequest->id_custuser !== $user->id) {
-            abort(403, 'Neautorizovaný přístup.');
-        }
-
-        // Kontrola, zda je požadavek ve stavu "Vyřešeno"
-        if ($ticketRequest->state != 4) { // 4 = Vyřešeno
-            return back()->with('error', 'Požadavek musí být ve stavu "Vyřešeno", aby mohl být uzavřen.');
-        }
-
-        // Změna stavu požadavku na "Uzavřeno"
-        $ticketRequest->state = 5; // 5 = Uzavřeno
-        $ticketRequest->save();
-
-        // Vytvoříme zprávu o uzavření
-        RequestMessage::create([
-            'id_request' => $ticketRequest->id,
-            'id_custuser' => $user->id,
-            'inserted' => now(),
-            'state' => 1,
-            'kind' => 1,
-            'message' => 'Požadavek byl potvrzen jako vyřešený a uzavřen.',
-        ]);
-
-        return redirect()->route('customer.requests.show', $ticketRequest)
-            ->with('success', 'Požadavek byl úspěšně uzavřen.');
+    // Kontrola, zda požadavek patří aktuálnímu uživateli
+    if ($ticketRequest->id_custuser !== $user->id && $user->kind != 3) {
+        abort(403, 'Neautorizovaný přístup.');
     }
+
+    // Kontrola, zda je požadavek ve stavu "Vyřešeno"
+    if ($ticketRequest->state != 4) { // 4 = Vyřešeno
+        return back()->with('error', 'Požadavek musí být ve stavu "Vyřešeno", aby mohl být uzavřen.');
+    }
+
+    // Změna stavu požadavku na "Uzavřeno"
+    $ticketRequest->state = 5; // 5 = Uzavřeno
+    $ticketRequest->save();
+
+    // Vytvoříme zprávu o uzavření
+    RequestMessage::create([
+        'id_request' => $ticketRequest->id,
+        'id_custuser' => $user->id,
+        'inserted' => now(),
+        'state' => 1,
+        'kind' => 1,
+        'message' => 'Požadavek byl potvrzen jako vyřešený a uzavřen.',
+    ]);
+
+    return redirect()->route('customer.requests.show', $ticketRequest)
+        ->with('success', 'Požadavek byl úspěšně uzavřen.');
+}
 }
