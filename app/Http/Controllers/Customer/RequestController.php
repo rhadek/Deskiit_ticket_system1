@@ -224,5 +224,6 @@ class RequestController extends Controller
 
     return redirect()->route('customer.requests.show', $ticketRequest)
         ->with('success', 'Požadavek byl úspěšně uzavřen.');
-}
+
+    }
 }
