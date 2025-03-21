@@ -18,9 +18,7 @@ class DashboardController extends Controller
     {
         $user = Auth::guard('customer')->user();
 
-        // Metriky pro dashboard
         if ($user->kind == 3) {
-            // Pro adminy počítáme všechny požadavky firmy
             $metrics = [
                 'total_requests' => TicketRequest::whereHas('projectItem.project', function ($q) use ($user) {
                     $q->where('id_customer', $user->id_customer);
@@ -33,7 +31,6 @@ class DashboardController extends Controller
                 })->whereIn('state', [4, 5])->count(),
             ];
 
-            // Poslední požadavky firmy
             $recent_requests = TicketRequest::whereHas('projectItem.project', function ($q) use ($user) {
                 $q->where('id_customer', $user->id_customer);
             })
@@ -42,7 +39,6 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get();
 
-            // Všechny projektové položky firmy
             $project_items = ProjectItem::whereHas('project', function ($q) use ($user) {
                 $q->where('id_customer', $user->id_customer);
             })
@@ -50,7 +46,6 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get();
         } else {
-            // Původní kód pro běžné uživatele
             $metrics = [
                 'total_requests' => TicketRequest::where('id_custuser', $user->id)->count(),
                 'open_requests' => TicketRequest::where('id_custuser', $user->id)
