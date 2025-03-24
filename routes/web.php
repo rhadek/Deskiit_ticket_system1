@@ -62,13 +62,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/request-reports/{requestReport}/edit', [RequestReportController::class, 'edit'])->name('request-reports.edit');
     Route::put('/request-reports/{requestReport}', [RequestReportController::class, 'update'])->name('request-reports.update');
     Route::delete('/request-reports/{requestReport}', [RequestReportController::class, 'destroy'])->name('request-reports.destroy');
+    Route::get('customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::get('projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     // Admin routes - chráněné přímou instancí IsAdmin middleware
     Route::middleware(IsAdmin::class)->group(function () {
         // CRUD pro firmy
-        Route::resource('customers', CustomerController::class);
+        Route::resource('customers', CustomerController::class)->except(['show']);
 
         // CRUD pro projekty
-        Route::resource('projects', ProjectController::class);
+        Route::resource('projects', ProjectController::class)->except(['show']);
 
         // Cesty pro zákaznické uživatele vyžadující admin práva
         // DŮLEŽITÉ: create musí být před {customerUser} cestami
@@ -110,6 +112,7 @@ Route::middleware('auth')->group(function () {
     // Cesty pro zákaznické uživatele dostupné pro všechny přihlášené
     Route::get('/customer-users', [CustomerUserController::class, 'index'])->name('customer_users.index');
     Route::get('/customer-users/{customerUser}', [CustomerUserController::class, 'show'])->name('customer_users.show');
+
 
     // Přidání zprávy k požadavku a změna stavu
     Route::post('/requests/{request}/messages', [RequestController::class, 'addMessage'])->name('requests.add-message');

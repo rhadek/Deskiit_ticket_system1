@@ -140,7 +140,7 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Detail</a>
+                                            <a href="{{ route('project_items.show', $item->id) }}" class="text-indigo-600 hover:text-indigo-900">Detail</a>
                                         </td>
                                     </tr>
                                 @empty
@@ -204,7 +204,7 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Detail</a>
+                                            <a href=" {{ route('requests.show', $request->id) }}" class="text-indigo-600 hover:text-indigo-900">Detail</a>
                                         </td>
                                     </tr>
                                 @empty

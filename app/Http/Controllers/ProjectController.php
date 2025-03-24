@@ -17,7 +17,7 @@ class ProjectController extends Controller
     {
         $this->middleware('auth');
         // Middleware IsAdmin pro všechny metody - pouze admin může pracovat s projekty
-        $this->middleware(IsAdmin::class);
+        $this->middleware(IsAdmin::class)->except('show');
     }
 
     public function index(): View
