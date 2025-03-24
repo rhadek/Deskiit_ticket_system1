@@ -13,7 +13,6 @@
                         @csrf
                         @method('PUT')
 
-                        <!-- Projekt -->
                         <div>
                             <x-input-label for="id_project" :value="__('Projekt')" />
                             <select id="id_project" name="id_project" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -26,14 +25,12 @@
                             <x-input-error :messages="$errors->get('id_project')" class="mt-2" />
                         </div>
 
-                        <!-- Název položky -->
                         <div class="mt-4">
                             <x-input-label for="name" :value="__('Název položky')" />
                             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $projectItem->name)" required autofocus />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
-                        <!-- Stav -->
                         <div class="mt-4">
                             <x-input-label for="state" :value="__('Stav')" />
                             <select id="state" name="state" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -46,7 +43,6 @@
                             <x-input-error :messages="$errors->get('state')" class="mt-2" />
                         </div>
 
-                        <!-- Typ -->
                         <div class="mt-4">
                             <x-input-label for="kind" :value="__('Typ')" />
                             <select id="kind" name="kind" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">

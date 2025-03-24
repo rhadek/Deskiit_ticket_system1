@@ -10,7 +10,6 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
-                    <!-- Timer Panel -->
                     <div class="bg-gray-50 p-6 rounded-lg mb-6 border">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Stopky</h3>
                         <div class="flex items-center justify-center mb-6">
@@ -43,14 +42,12 @@
                         @csrf
                         @method('PUT')
 
-                        <!-- Požadavek - pouze pro zobrazení -->
                         <div>
                             <x-input-label for="request" :value="__('Požadavek')" />
                             <x-text-input id="request" class="block mt-1 w-full bg-gray-100" type="text"
                                 value="{{ $requestReport->request->name }} ({{ $requestReport->request->projectItem ? $requestReport->request->projectItem->name : 'N/A' }})" disabled />
                         </div>
 
-                        <!-- Začátek práce -->
                         <div class="mt-4">
                             <x-input-label for="work_start" :value="__('Začátek práce')" />
                             <x-text-input id="work_start" class="block mt-1 w-full" type="datetime-local"
@@ -58,7 +55,6 @@
                             <x-input-error :messages="$errors->get('work_start')" class="mt-2" />
                         </div>
 
-                        <!-- Konec práce -->
                         <div class="mt-4">
                             <x-input-label for="work_end" :value="__('Konec práce')" />
                             <x-text-input id="work_end" class="block mt-1 w-full" type="datetime-local"
@@ -66,7 +62,6 @@
                             <x-input-error :messages="$errors->get('work_end')" class="mt-2" />
                         </div>
 
-                        <!-- Celkový čas v minutách -->
                         <div class="mt-4">
                             <x-input-label for="work_total" :value="__('Celkový čas (minuty)')" />
                             <x-text-input id="work_total" class="block mt-1 w-full" type="number"
@@ -74,7 +69,6 @@
                             <x-input-error :messages="$errors->get('work_total')" class="mt-2" />
                         </div>
 
-                        <!-- Popis práce -->
                         <div class="mt-4">
                             <x-input-label for="descript" :value="__('Popis práce')" />
                             <textarea id="descript" name="descript" rows="5"
@@ -82,7 +76,6 @@
                             <x-input-error :messages="$errors->get('descript')" class="mt-2" />
                         </div>
 
-                        <!-- Stav -->
                         <div class="mt-4">
                             <x-input-label for="state" :value="__('Stav')" />
                             <select id="state" name="state" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -92,7 +85,6 @@
                             <x-input-error :messages="$errors->get('state')" class="mt-2" />
                         </div>
 
-                        <!-- Typ -->
                         <div class="mt-4">
                             <x-input-label for="kind" :value="__('Typ')" />
                             <select id="kind" name="kind" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -118,11 +110,9 @@
         </div>
     </div>
 
-    <!-- Include Timer Script -->
     <script src="{{ asset('js/timer.js') }}"></script>
 
     <script>
-        // Automatické vypočítání celkového času
         document.addEventListener('DOMContentLoaded', function() {
             const workStart = document.getElementById('work_start');
             const workEnd = document.getElementById('work_end');
@@ -134,7 +124,7 @@
                     const end = new Date(workEnd.value);
 
                     if (end > start) {
-                        const diff = Math.round((end - start) / (1000 * 60)); // Rozdíl v minutách
+                        const diff = Math.round((end - start) / (1000 * 60));
                         workTotal.value = diff;
                     }
                 }

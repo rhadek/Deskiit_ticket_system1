@@ -7,7 +7,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Uvítání -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
                     <h2 class="text-2xl font-bold mb-2">Dobrý den, {{ Auth::user()->fname }}!</h2>
@@ -15,7 +14,7 @@
                 </div>
             </div>
 
-            <!-- Statistiky požadavků -->
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
@@ -65,7 +64,7 @@
             </div>
 
             <div class="flex flex-col md:flex-row gap-6">
-                <!-- Sidebar with projects -->
+
                 <div class="md:w-1/4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-4">
@@ -80,7 +79,7 @@
                                 @endif
                             </div>
                             <div class="space-y-2">
-                                <!-- Odkaz pro zobrazení všech projektů -->
+
                                 <a href="{{ route('dashboard') }}" class="block p-2 {{ !request('project_id') ? 'bg-indigo-50 text-indigo-700 font-medium' : 'hover:bg-gray-100' }} rounded transition">
                                     <span class="flex items-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,7 +89,7 @@
                                     </span>
                                 </a>
 
-                                <!-- Seznam projektů -->
+
                                 @forelse ($projects as $project)
                                     <a href="{{ route('dashboard', ['project_id' => $project->id]) }}"
                                        class="block p-2 {{ request('project_id') == $project->id ? 'bg-indigo-50 text-indigo-700 font-medium' : 'hover:bg-gray-100' }} rounded transition">
@@ -107,7 +106,7 @@
                     </div>
                 </div>
 
-                <!-- Main content area with project items by status -->
+
                 <div class="md:w-3/4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
@@ -120,7 +119,7 @@
                                 @endif
                             </div>
 
-                            <!-- Group items by state -->
+
                             <div class="mb-6">
                                 <h4 class="font-medium text-gray-700 mb-2">Podle stavu:</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -177,7 +176,7 @@
                                 </div>
                             </div>
 
-                            <!-- Group items by kind -->
+
                             {{-- <div>
                                 <h4 class="font-medium text-gray-700 mb-2">Podle typu:</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -212,7 +211,7 @@
                 </div>
             </div>
 
-            <!-- Latest requests section -->
+
             <div class="mt-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">

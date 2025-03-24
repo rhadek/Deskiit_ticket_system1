@@ -38,7 +38,6 @@
                 </div>
             @endif
 
-            <!-- Informace o položce -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Informace o položce</h3>
@@ -67,7 +66,6 @@
                             <p class="text-gray-700">{{ $projectItem->name }}</p>
                         </div>
 
-                        <!-- Tento kód vložte do vašeho project_items/show.blade.php v části, kde se zobrazuje stav položky -->
 
                         <div>
                             <p class="text-sm font-semibold">Stav:</p>
@@ -124,7 +122,6 @@
                 </div>
             </div>
 
-            <!-- Záložky -->
             <div class="mb-6">
                 <div class="border-b border-gray-200">
                     <nav class="-mb-px flex">
@@ -141,7 +138,6 @@
                 </div>
             </div>
 
-            <!-- Tab obsah - Přiřazení uživatelé -->
             <div id="users-tab" class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between mb-4">
@@ -220,7 +216,7 @@
                 </div>
             </div>
 
-            <!-- Tab obsah - Přiřazení zákazničtí uživatelé -->
+
             <div id="customer-users-tab" class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 hidden">
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between mb-4">
@@ -301,7 +297,6 @@
                 </div>
             </div>
 
-            <!-- Tab obsah - Požadavky -->
             <div id="requests-tab" class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 hidden">
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between mb-4">

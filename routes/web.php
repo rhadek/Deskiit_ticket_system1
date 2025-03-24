@@ -56,7 +56,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
 
 
-
+    Route::get('/request-reports/create', [RequestReportController::class, 'create'])->name('request-reports.create');
+    Route::post('/request-reports', [RequestReportController::class, 'store'])->name('request-reports.store');
+    Route::get('/request-reports/{requestReport}', [RequestReportController::class, 'show'])->name('request-reports.show');
+    Route::get('/request-reports/{requestReport}/edit', [RequestReportController::class, 'edit'])->name('request-reports.edit');
+    Route::put('/request-reports/{requestReport}', [RequestReportController::class, 'update'])->name('request-reports.update');
+    Route::delete('/request-reports/{requestReport}', [RequestReportController::class, 'destroy'])->name('request-reports.destroy');
     // Admin routes - chráněné přímou instancí IsAdmin middleware
     Route::middleware(IsAdmin::class)->group(function () {
         // CRUD pro firmy
@@ -99,12 +104,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/requests/{request}', [RequestController::class, 'update'])->name('requests.update');
 
         // Cesty pro reporty práce - všechny operace jsou omezeny na adminy
-        Route::get('/request-reports/create', [RequestReportController::class, 'create'])->name('request-reports.create');
-        Route::post('/request-reports', [RequestReportController::class, 'store'])->name('request-reports.store');
-        Route::get('/request-reports/{requestReport}', [RequestReportController::class, 'show'])->name('request-reports.show');
-        Route::get('/request-reports/{requestReport}/edit', [RequestReportController::class, 'edit'])->name('request-reports.edit');
-        Route::put('/request-reports/{requestReport}', [RequestReportController::class, 'update'])->name('request-reports.update');
-        Route::delete('/request-reports/{requestReport}', [RequestReportController::class, 'destroy'])->name('request-reports.destroy');
+
     });
 
     // Cesty pro zákaznické uživatele dostupné pro všechny přihlášené

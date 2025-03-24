@@ -4,11 +4,11 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Moje projekty') }}
             </h2>
-            @if(Auth::guard('customer')->user()->kind == 3)
+            {{-- @if(Auth::guard('customer')->user()->kind == 3)
                 <a href="{{ route('customer.projects.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
                     {{ __('Nový projekt') }}
                 </a>
-            @endif
+            @endif --}}
         </div>
     </x-slot>
 

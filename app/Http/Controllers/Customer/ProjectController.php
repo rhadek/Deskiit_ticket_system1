@@ -60,7 +60,7 @@ class ProjectController extends Controller
         return view('customer.projects.show', compact('project', 'projectItems'));
     }
 
-    public function create()
+    /* public function create()
     {
         $user = Auth::guard('customer')->user();
         if ($user->kind != 3) {
@@ -70,7 +70,7 @@ class ProjectController extends Controller
         return view('customer.projects.create', [
             'customer' => $user->customer,
         ]);
-    }
+    } */
 
     public function store(Request $request)
     {

@@ -34,7 +34,6 @@
                 </div>
             @endif
 
-            <!-- Informace o požadavku -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Informace o požadavku</h3>
@@ -146,7 +145,6 @@
                 </div>
             </div>
 
-            <!-- Změna stavu -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Změna stavu</h3>
@@ -174,7 +172,7 @@
                 </div>
             </div>
 
-            <!-- Zprávy -->
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Zprávy</h3>
@@ -207,7 +205,7 @@
                         @endforelse
                     </div>
 
-                    <!-- Formulář pro přidání nové zprávy -->
+
                     <div class="mt-8">
                         <h4 class="text-md font-medium text-gray-900 mb-2">Přidat odpověď</h4>
                         <form action="{{ route('requests.add-message', $request) }}" method="POST">
@@ -229,22 +227,17 @@
                 </div>
             </div>
 
-            <!-- Reporty práce -->
-            <!-- Reporty práce -->
 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
     <div class="p-6 text-gray-900">
-        <!-- Nadpis a rozložení ovládacích prvků -->
         <div class="mb-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Reporty práce</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Time Tracker Component v levém sloupci -->
                 <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
                     <div class="mb-2 text-sm font-medium text-gray-700">Automatické měření času</div>
                     <x-time-tracker :requestId="$request->id" :requestName="$request->name" />
                 </div>
 
-                <!-- Manuální přidání reportu v pravém sloupci -->
                 <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col justify-between">
                     <div class="mb-2 text-sm font-medium text-gray-700">Manuální přidání reportu</div>
                     <p class="text-sm text-gray-500 mb-4">Zapomněl si trackovat? Přidej report manuálně.</p>

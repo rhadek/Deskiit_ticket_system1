@@ -13,26 +13,26 @@
                         @csrf
                         @method('PUT')
 
-                        <!-- Projektová položka - pouze pro zobrazení -->
+                      
                         <div>
                             <x-input-label for="projectitem" :value="__('Projektová položka')" />
                             <x-text-input id="projectitem" class="block mt-1 w-full bg-gray-100" type="text" :value="$request->projectItem->name . ' (' . $request->projectItem->project->name . ' - ' . $request->projectItem->project->customer->name . ')'" disabled />
                         </div>
 
-                        <!-- Zákaznický uživatel - pouze pro zobrazení -->
+
                         <div class="mt-4">
                             <x-input-label for="custuser" :value="__('Zákaznický uživatel')" />
                             <x-text-input id="custuser" class="block mt-1 w-full bg-gray-100" type="text" :value="$request->customerUser->fname . ' ' . $request->customerUser->lname . ' (' . $request->customerUser->email . ')'" disabled />
                         </div>
 
-                        <!-- Název požadavku -->
+
                         <div class="mt-4">
                             <x-input-label for="name" :value="__('Název požadavku')" />
                             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $request->name)" required autofocus />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
-                        <!-- Stav -->
+
                         <div class="mt-4">
                             <x-input-label for="state" :value="__('Stav')" />
                             <select id="state" name="state" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -45,7 +45,7 @@
                             <x-input-error :messages="$errors->get('state')" class="mt-2" />
                         </div>
 
-                        <!-- Typ -->
+
                         <div class="mt-4">
                             <x-input-label for="kind" :value="__('Typ')" />
                             <select id="kind" name="kind" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">

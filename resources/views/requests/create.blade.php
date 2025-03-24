@@ -12,7 +12,7 @@
                     <form method="POST" action="{{ route('requests.store') }}">
                         @csrf
 
-                        <!-- Projektová položka -->
+
                         <div>
                             <x-input-label for="id_projectitem" :value="__('Projektová položka')" />
                             <select id="id_projectitem" name="id_projectitem" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -25,7 +25,7 @@
                             <x-input-error :messages="$errors->get('id_projectitem')" class="mt-2" />
                         </div>
 
-                        <!-- Zákaznický uživatel - pouze pro admina -->
+
                         @if(auth()->user()->kind == 3)
                         <div class="mt-4">
                             <x-input-label for="id_custuser" :value="__('Zákaznický uživatel')" />
@@ -40,21 +40,21 @@
                         </div>
                         @endif
 
-                        <!-- Název požadavku -->
+
                         <div class="mt-4">
                             <x-input-label for="name" :value="__('Název požadavku')" />
                             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
-                        <!-- Popis požadavku -->
+
                         <div class="mt-4">
                             <x-input-label for="description" :value="__('Popis požadavku')" />
                             <textarea id="description" name="description" rows="5" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" required>{{ old('description') }}</textarea>
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
 
-                        <!-- Stav -->
+
                         <div class="mt-4">
                             <x-input-label for="state" :value="__('Stav')" />
                             <select id="state" name="state" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -67,7 +67,7 @@
                             <x-input-error :messages="$errors->get('state')" class="mt-2" />
                         </div>
 
-                        <!-- Typ -->
+
                         <div class="mt-4">
                             <x-input-label for="kind" :value="__('Typ')" />
                             <select id="kind" name="kind" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -78,7 +78,7 @@
                             <x-input-error :messages="$errors->get('kind')" class="mt-2" />
                         </div>
 
-                        <!-- Přesměrování zpět k projektové položce -->
+                     
                         @if($selectedProjectItem)
                             <input type="hidden" name="redirect_to_projectitem" value="1">
                         @endif

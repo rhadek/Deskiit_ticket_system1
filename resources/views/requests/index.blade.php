@@ -27,7 +27,7 @@
                         </div>
                     @endif
 
-                    <!-- Filtry -->
+
                     <div class="mb-6">
                         <form method="GET" action="{{ route('requests.index') }}" class="flex flex-wrap gap-4">
                             <div>
