@@ -1,4 +1,3 @@
-// resources/js/components/TimeTracker.js
 
 class TimeTracker {
     constructor() {
@@ -10,21 +9,18 @@ class TimeTracker {
         this.updateCallback = null;
     }
 
-    // Start the timer
     start(requestId) {
-        if (this.isTracking) return; // Don't start if already tracking
+        if (this.isTracking) return;
 
         this.isTracking = true;
         this.requestId = requestId;
         this.startTime = new Date();
 
-        // Save the start time to localStorage for persistence across page refreshes
         localStorage.setItem('timeTracker_startTime', this.startTime.toISOString());
         localStorage.setItem('timeTracker_requestId', this.requestId);
         localStorage.setItem('timeTracker_isTracking', 'true');
         localStorage.setItem('timeTracker_elapsedTime', '0');
 
-        // Start the timer to update the display
         this.timer = setInterval(() => {
             this.elapsedTime = Math.floor((new Date() - this.startTime) / 1000);
             localStorage.setItem('timeTracker_elapsedTime', this.elapsedTime.toString());
@@ -38,7 +34,6 @@ class TimeTracker {
         return true;
     }
 
-    // Stop the timer
     stop() {
         if (!this.isTracking) return null;
 
@@ -54,13 +49,11 @@ class TimeTracker {
             totalSeconds: totalTime
         };
 
-        // Clear localStorage
         localStorage.removeItem('timeTracker_startTime');
         localStorage.removeItem('timeTracker_requestId');
         localStorage.removeItem('timeTracker_isTracking');
         localStorage.removeItem('timeTracker_elapsedTime');
 
-        // Reset the timer
         this.timer = null;
         this.startTime = null;
         this.elapsedTime = 0;
@@ -70,20 +63,17 @@ class TimeTracker {
         return result;
     }
 
-    // Cancel the timer without saving
     cancel() {
         if (!this.isTracking) return false;
 
         clearInterval(this.timer);
         this.isTracking = false;
 
-        // Clear localStorage
         localStorage.removeItem('timeTracker_startTime');
         localStorage.removeItem('timeTracker_requestId');
         localStorage.removeItem('timeTracker_isTracking');
         localStorage.removeItem('timeTracker_elapsedTime');
 
-        // Reset the timer
         this.timer = null;
         this.startTime = null;
         this.elapsedTime = 0;
@@ -93,7 +83,6 @@ class TimeTracker {
         return true;
     }
 
-    // Format seconds into HH:MM:SS
     formatTime(seconds) {
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
@@ -106,7 +95,6 @@ class TimeTracker {
         ].join(':');
     }
 
-    // Check if there's an active tracking session
     checkForActiveSession() {
         const isTracking = localStorage.getItem('timeTracker_isTracking') === 'true';
         if (isTracking) {
@@ -114,32 +102,26 @@ class TimeTracker {
             this.requestId = localStorage.getItem('timeTracker_requestId');
 
             if (!startTimeStr || !this.requestId) {
-                this.cancel(); // Invalid data in localStorage, reset everything
+                this.cancel();
                 return null;
             }
 
             this.startTime = new Date(startTimeStr);
             const storedElapsedTime = parseInt(localStorage.getItem('timeTracker_elapsedTime') || '0');
 
-            // If stored start time is valid, calculate the current elapsed time
-            // This ensures the timer continues correctly even after page refresh
             if (!isNaN(this.startTime.getTime())) {
                 this.elapsedTime = Math.floor((new Date() - this.startTime) / 1000);
 
-                // If there's a big discrepancy with stored elapsed time, use the larger value
-                // This helps handle cases where the page was closed while timer was running
                 if (storedElapsedTime > this.elapsedTime) {
                     this.elapsedTime = storedElapsedTime;
                 }
             } else {
-                // If start time is invalid but we have elapsed time
                 this.elapsedTime = storedElapsedTime;
                 this.startTime = new Date(new Date().getTime() - (this.elapsedTime * 1000));
             }
 
             this.isTracking = true;
 
-            // Restart the timer
             this.timer = setInterval(() => {
                 this.elapsedTime = Math.floor((new Date() - this.startTime) / 1000);
                 localStorage.setItem('timeTracker_elapsedTime', this.elapsedTime.toString());
@@ -160,12 +142,10 @@ class TimeTracker {
         return null;
     }
 
-    // Set callback for timer updates
     onUpdate(callback) {
         this.updateCallback = callback;
     }
 
-    // Get current status
     getStatus() {
         return {
             isTracking: this.isTracking,

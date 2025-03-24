@@ -1,4 +1,3 @@
-// resources/js/time-tracker.js
 
 import TimeTracker from './components/TimeTracker';
 
@@ -23,12 +22,10 @@ function initTimeTracker() {
     const requestNameElement = document.getElementById('timeTracker_requestName');
     const differentRequestWarning = document.getElementById('timeTracker_differentRequestWarning');
 
-    // Modal elements
     const reportModal = document.getElementById('timeTracker_reportModal');
     const saveReportBtn = document.getElementById('timeTracker_saveReportBtn');
     const cancelReportBtn = document.getElementById('timeTracker_cancelReportBtn');
 
-    // Form elements
     const reportForm = document.getElementById('timeTracker_reportForm');
     const formRequestId = document.getElementById('timeTracker_form_requestId');
     const formWorkStart = document.getElementById('timeTracker_form_work_start');
@@ -36,45 +33,39 @@ function initTimeTracker() {
     const formWorkTotal = document.getElementById('timeTracker_form_work_total');
     const formCsrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    // Summary elements
     const summaryStart = document.getElementById('timeTracker_summary_start');
     const summaryEnd = document.getElementById('timeTracker_summary_end');
     const summaryTotal = document.getElementById('timeTracker_summary_total');
     const summaryMinutes = document.getElementById('timeTracker_summary_minutes');
 
-    // Update callback for the timer
     TimeTracker.onUpdate(function(formattedTime) {
         if (timerElement) {
             timerElement.textContent = formattedTime;
         }
     });
 
-    // Check for existing session
     const activeSessionData = TimeTracker.checkForActiveSession();
     if (activeSessionData) {
-        // We have an active session
         if (activeControls) activeControls.classList.remove('hidden');
         if (startBtn) startBtn.classList.add('hidden');
         if (activeSession) activeSession.classList.remove('hidden');
         if (requestInfo) requestInfo.classList.remove('hidden');
 
-        // Get the active request name using AJAX
         fetchRequestName(activeSessionData.requestId).then(nameData => {
             const name = nameData?.name || `Požadavek #${activeSessionData.requestId}`;
             if (requestNameElement) requestNameElement.textContent = name;
 
-            // Show warning if tracking a different request than the current page
             if (currentRequestId && currentRequestId != activeSessionData.requestId) {
                 differentRequestWarning.classList.remove('hidden');
             }
         });
 
-        // Update the timer
+
         if (timerElement) {
             timerElement.textContent = activeSessionData.elapsedTime;
         }
     } else if (currentRequestId) {
-        // On a specific request page, pre-fill request info
+
         if (requestNameElement) {
             requestNameElement.textContent = currentRequestName || `Požadavek #${currentRequestId}`;
         }
@@ -83,10 +74,10 @@ function initTimeTracker() {
         }
     }
 
-    // Start timer button
+
     if (startBtn) {
         startBtn.addEventListener('click', function() {
-            // If we're on a specific request page, use that request ID
+
             const activeRequestId = currentRequestId || prompt('Zadejte ID požadavku, pro který chcete měřit čas:');
 
             if (activeRequestId) {
@@ -97,7 +88,6 @@ function initTimeTracker() {
                 if (activeSession) activeSession.classList.remove('hidden');
                 if (requestInfo) requestInfo.classList.remove('hidden');
 
-                // If we're not on a specific request page, get the request name
                 if (!currentRequestId) {
                     fetchRequestName(activeRequestId).then(nameData => {
                         const name = nameData?.name || `Požadavek #${activeRequestId}`;
@@ -112,7 +102,7 @@ function initTimeTracker() {
         });
     }
 
-    // Stop timer button
+
     if (stopBtn) {
         stopBtn.addEventListener('click', function() {
             const result = TimeTracker.stop();
@@ -122,7 +112,7 @@ function initTimeTracker() {
         });
     }
 
-    // Cancel timer button
+
     if (cancelBtn) {
         cancelBtn.addEventListener('click', function() {
             if (confirm('Opravdu chcete zrušit měření času? Data budou ztracena.')) {
@@ -132,7 +122,7 @@ function initTimeTracker() {
         });
     }
 
-    // Save report button
+
     if (saveReportBtn) {
         saveReportBtn.addEventListener('click', function() {
             if (reportForm && reportForm.checkValidity()) {
@@ -143,7 +133,7 @@ function initTimeTracker() {
         });
     }
 
-    // Cancel report button
+
     if (cancelReportBtn) {
         cancelReportBtn.addEventListener('click', function() {
             if (reportModal) {
@@ -160,40 +150,33 @@ function initTimeTracker() {
         if (timerElement) timerElement.textContent = '00:00:00';
         if (differentRequestWarning) differentRequestWarning.classList.add('hidden');
 
-        // Only hide request info if we're not on a specific request page
         if (!currentRequestId && requestInfo) {
             requestInfo.classList.add('hidden');
         }
     }
 
     function showReportModal(result) {
-        // Fill in the form values
         if (formRequestId) formRequestId.value = result.requestId;
         if (formWorkStart) formWorkStart.value = result.startTime.toISOString();
         if (formWorkEnd) formWorkEnd.value = result.endTime.toISOString();
 
-        // Calculate minutes from seconds and round up
         const totalMinutes = Math.ceil(result.totalSeconds / 60);
         if (formWorkTotal) formWorkTotal.value = totalMinutes;
 
-        // Update summary
         if (summaryStart) summaryStart.textContent = formatDateTime(result.startTime);
         if (summaryEnd) summaryEnd.textContent = formatDateTime(result.endTime);
         if (summaryTotal) summaryTotal.textContent = formatDuration(result.totalSeconds);
         if (summaryMinutes) summaryMinutes.textContent = totalMinutes + ' min';
 
-        // Show the modal
         if (reportModal) reportModal.classList.remove('hidden');
     }
 
     function saveReport() {
-        // Create form data from the report form
+
         const formData = new FormData(reportForm);
 
-        // Add CSRF token as form field rather than header
         formData.append('_token', formCsrfToken);
 
-        // Send data using fetch
         fetch('/request-reports', {
             method: 'POST',
             headers: {
@@ -203,13 +186,10 @@ function initTimeTracker() {
             body: formData
         })
         .then(response => {
-            // If status is 2xx, consider it a success regardless of content
             if (response.ok) {
-                // Don't try to parse JSON, just return success status
                 return { success: true };
             }
 
-            // Only try to parse JSON for error messages
             if (response.headers.get('content-type')?.includes('application/json')) {
                 return response.json().then(err => {
                     throw new Error(err.message || 'Network response was not ok');
@@ -219,16 +199,12 @@ function initTimeTracker() {
             }
         })
         .then(data => {
-            // Hide modal
             if (reportModal) reportModal.classList.add('hidden');
 
-            // Reset UI
             resetTimerUI();
 
-            // Show success message
             alert('Report byl úspěšně uložen!');
 
-            // Reload page if on request detail to show the new report
             if (window.location.href.includes('/requests/')) {
                 window.location.reload();
             }
@@ -236,9 +212,7 @@ function initTimeTracker() {
         .catch(error => {
             console.error('Error saving report:', error);
 
-            // Still check if data was saved despite error
             if (window.location.href.includes('/requests/')) {
-                // Refresh the page anyway to see if the report was actually saved
                 window.location.reload();
             } else {
                 alert('Při ukládání reportu došlo k chybě: ' + error.message);

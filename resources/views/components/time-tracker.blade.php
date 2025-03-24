@@ -3,22 +3,13 @@
 @props(['requestId', 'requestName'])
 
 <div id="time-tracker-component"
-     class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 mb-4"
+     class="w-full"
      data-request-id="{{ $requestId }}"
      data-request-name="{{ $requestName }}">
 
-    <div class="flex justify-between items-center mb-2">
-        <h3 class="text-lg font-medium text-gray-900">Sledování času</h3>
-        <div id="timeTracker_activeSession" class="hidden">
-            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                Aktivní měření
-            </span>
-        </div>
-    </div>
-
-    <div id="timeTracker_requestInfo" class="mb-4 hidden">
+    <div id="timeTracker_requestInfo" class="mb-2 hidden">
         <div class="text-sm text-gray-600">
-            <span>Měříte čas pro požadavek: </span>
+            <span>Měříte čas pro: </span>
             <span id="timeTracker_requestName" class="font-semibold"></span>
             <span id="timeTracker_differentRequestWarning" class="text-red-600 ml-2 hidden">
                 (Pozor: Měříte čas pro jiný požadavek!)
@@ -26,12 +17,19 @@
         </div>
     </div>
 
-    <div class="flex justify-between items-center">
-        <div id="timeTracker_timer" class="text-2xl font-bold text-gray-800">00:00:00</div>
+    <div class="flex flex-col space-y-3">
+        <div class="flex justify-between items-center">
+            <div id="timeTracker_timer" class="text-2xl font-bold text-gray-800">00:00:00</div>
+            <div id="timeTracker_activeSession" class="hidden">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                    Aktivní měření
+                </span>
+            </div>
+        </div>
 
-        <div id="timeTracker_controls">
+        <div id="timeTracker_controls" class="flex justify-start">
             <button id="timeTracker_startBtn"
-                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 mr-2">
+                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -39,9 +37,9 @@
                 Start
             </button>
 
-            <div id="timeTracker_activeControls" class="hidden">
+            <div id="timeTracker_activeControls" class="hidden space-x-2">
                 <button id="timeTracker_stopBtn"
-                        class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 mr-2">
+                        class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
