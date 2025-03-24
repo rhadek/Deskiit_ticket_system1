@@ -328,7 +328,7 @@
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $request->id }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <a href="#" class="text-blue-600 hover:text-blue-900">
+                                            <a href="{{ route('requests.show', $request->id) }}" class="text-blue-600 hover:text-blue-900">
                                                 {{ $request->name }}
                                             </a>
                                         </td>
@@ -354,7 +354,7 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Detail</a>
+                                            <a href="{{ route('requests.show', $request->id) }}" class="text-indigo-600 hover:text-indigo-900">Detail</a>
                                         </td>
                                     </tr>
                                 @empty

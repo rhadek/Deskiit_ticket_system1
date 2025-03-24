@@ -151,6 +151,12 @@
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Změna stavu</h3>
 
+                    @auth
+                        <div class="mb-6">
+                            <x-time-tracker :requestId="$request->id" :requestName="$request->name" />
+                        </div>
+                    @endauth
+
                     <form action="{{ route('requests.change-state', $request) }}" method="POST"
                         class="flex items-center space-x-4">
                         @csrf

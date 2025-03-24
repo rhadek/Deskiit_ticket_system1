@@ -23,6 +23,10 @@ use App\Http\Controllers\UserDashboardController;
 |
 */
 
+Route::prefix('api')->group(function () {
+    Route::get('/requests/{id}/name', [App\Http\Controllers\Api\TimeTrackerController::class, 'getRequestName']);
+});
+
 Route::get('/', function () {
     return view('welcome');
 });
