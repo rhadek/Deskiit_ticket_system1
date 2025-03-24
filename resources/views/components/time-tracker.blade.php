@@ -20,6 +20,9 @@
         <div class="text-sm text-gray-600">
             <span>Měříte čas pro požadavek: </span>
             <span id="timeTracker_requestName" class="font-semibold"></span>
+            <span id="timeTracker_differentRequestWarning" class="text-red-600 ml-2 hidden">
+                (Pozor: Měříte čas pro jiný požadavek!)
+            </span>
         </div>
     </div>
 
@@ -68,6 +71,7 @@
                         </h3>
 
                         <form id="timeTracker_reportForm" class="space-y-4">
+                            @csrf
                             <!-- Hidden inputs -->
                             <input type="hidden" id="timeTracker_form_requestId" name="id_request">
                             <input type="hidden" id="timeTracker_form_work_start" name="work_start">
@@ -120,6 +124,9 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- State (hidden) -->
+                            <input type="hidden" name="state" value="1">
                         </form>
                     </div>
                 </div>

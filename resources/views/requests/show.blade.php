@@ -151,12 +151,6 @@
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Změna stavu</h3>
 
-                    @auth
-                        <div class="mb-6">
-                            <x-time-tracker :requestId="$request->id" :requestName="$request->name" />
-                        </div>
-                    @endauth
-
                     <form action="{{ route('requests.change-state', $request) }}" method="POST"
                         class="flex items-center space-x-4">
                         @csrf
@@ -179,9 +173,6 @@
                     </form>
                 </div>
             </div>
-
-
-
 
             <!-- Zprávy -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
@@ -239,86 +230,90 @@
             </div>
 
             <!-- Reporty práce -->
-            @if (count($request->reports) > 0 || auth()->user()->kind == 3)
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                    <div class="p-6 text-gray-900">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Reporty práce</h3>
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-6 text-gray-900">
+                    <div class="flex flex-wrap justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Reporty práce</h3>
+                        <div class="flex space-x-2 mt-2 sm:mt-0">
+                            <!-- Time Tracker Component -->
+                            <x-time-tracker :requestId="$request->id" :requestName="$request->name" />
 
-                        @if (count($request->reports) > 0)
-                            <div class="overflow-x-auto mb-6">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Pracovník</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Od</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Do</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Celkem</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Popis</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Akce</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach ($request->reports as $report)
-                                            <tr>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    @if ($report->user)
-                                                        {{ $report->user->fname }} {{ $report->user->lname }}
-                                                    @else
-                                                        <span class="text-red-500">Uživatel smazán</span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $report->work_start ? $report->work_start->format('d.m.Y H:i') : 'N/A' }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $report->work_end ? $report->work_end->format('d.m.Y H:i') : 'N/A' }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $report->work_total }} min
-                                                </td>
-                                                <td class="px-6 py-4 text-sm text-gray-500">
-                                                    {{ $report->descript }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <a href="{{ route('request-reports.edit', $report) }}"
-                                                        class="text-indigo-600 hover:text-indigo-900 mr-3">Upravit</a>
-                                                    <form action="{{ route('request-reports.destroy', $report) }}"
-                                                        method="POST" class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="text-red-600 hover:text-red-900"
-                                                            onclick="return confirm('Opravdu chcete smazat tento report?')">Smazat</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @endif
-
-                        <div class="mt-4">
-                            <h4 class="text-md font-medium text-gray-900 mb-2">Přidat nový report práce</h4>
+                            <!-- Manual report button -->
                             <a href="{{ route('request-reports.create', ['id_request' => $request->id]) }}"
                                 class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-                                {{ __('Přidat report') }}
+                                {{ __('Přidat report manuálně') }}
                             </a>
                         </div>
                     </div>
+
+                    @if (count($request->reports) > 0)
+                        <div class="overflow-x-auto mb-6">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Pracovník</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Od</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Do</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Celkem</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Popis</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Akce</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach ($request->reports as $report)
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                @if ($report->user)
+                                                    {{ $report->user->fname }} {{ $report->user->lname }}
+                                                @else
+                                                    <span class="text-red-500">Uživatel smazán</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $report->work_start ? $report->work_start->format('d.m.Y H:i') : 'N/A' }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $report->work_end ? $report->work_end->format('d.m.Y H:i') : 'N/A' }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $report->work_total }} min
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                                                {{ $report->descript }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <a href="{{ route('request-reports.edit', $report) }}"
+                                                    class="text-indigo-600 hover:text-indigo-900 mr-3">Upravit</a>
+                                                <form action="{{ route('request-reports.destroy', $report) }}"
+                                                    method="POST" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900"
+                                                        onclick="return confirm('Opravdu chcete smazat tento report?')">Smazat</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-gray-500 text-center mb-4">Žádné reporty práce k tomuto požadavku.</p>
+                    @endif
                 </div>
-            @endif
+            </div>
         </div>
     </div>
 </x-app-layout>

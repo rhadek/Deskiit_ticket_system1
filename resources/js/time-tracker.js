@@ -10,8 +10,8 @@ function initTimeTracker() {
     const trackerComponent = document.getElementById('time-tracker-component');
     if (!trackerComponent) return;
 
-    const requestId = trackerComponent.dataset.requestId;
-    const requestName = trackerComponent.dataset.requestName;
+    const currentRequestId = trackerComponent.dataset.requestId;
+    const currentRequestName = trackerComponent.dataset.requestName;
 
     const timerElement = document.getElementById('timeTracker_timer');
     const startBtn = document.getElementById('timeTracker_startBtn');
@@ -21,6 +21,7 @@ function initTimeTracker() {
     const activeSession = document.getElementById('timeTracker_activeSession');
     const requestInfo = document.getElementById('timeTracker_requestInfo');
     const requestNameElement = document.getElementById('timeTracker_requestName');
+    const differentRequestWarning = document.getElementById('timeTracker_differentRequestWarning');
 
     // Modal elements
     const reportModal = document.getElementById('timeTracker_reportModal');
@@ -33,6 +34,7 @@ function initTimeTracker() {
     const formWorkStart = document.getElementById('timeTracker_form_work_start');
     const formWorkEnd = document.getElementById('timeTracker_form_work_end');
     const formWorkTotal = document.getElementById('timeTracker_form_work_total');
+    const formCsrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     // Summary elements
     const summaryStart = document.getElementById('timeTracker_summary_start');
@@ -42,155 +44,205 @@ function initTimeTracker() {
 
     // Update callback for the timer
     TimeTracker.onUpdate(function(formattedTime) {
-        timerElement.textContent = formattedTime;
+        if (timerElement) {
+            timerElement.textContent = formattedTime;
+        }
     });
 
     // Check for existing session
     const activeSessionData = TimeTracker.checkForActiveSession();
     if (activeSessionData) {
         // We have an active session
-        activeControls.classList.remove('hidden');
-        startBtn.classList.add('hidden');
-        activeSession.classList.remove('hidden');
-        requestInfo.classList.remove('hidden');
+        if (activeControls) activeControls.classList.remove('hidden');
+        if (startBtn) startBtn.classList.add('hidden');
+        if (activeSession) activeSession.classList.remove('hidden');
+        if (requestInfo) requestInfo.classList.remove('hidden');
 
         // Get the active request name using AJAX
-        fetchRequestName(activeSessionData.requestId).then(name => {
-            requestNameElement.textContent = name || `Požadavek #${activeSessionData.requestId}`;
+        fetchRequestName(activeSessionData.requestId).then(nameData => {
+            const name = nameData?.name || `Požadavek #${activeSessionData.requestId}`;
+            if (requestNameElement) requestNameElement.textContent = name;
+
+            // Show warning if tracking a different request than the current page
+            if (currentRequestId && currentRequestId != activeSessionData.requestId) {
+                differentRequestWarning.classList.remove('hidden');
+            }
         });
 
         // Update the timer
-        timerElement.textContent = activeSessionData.elapsedTime;
-    } else if (requestId) {
+        if (timerElement) {
+            timerElement.textContent = activeSessionData.elapsedTime;
+        }
+    } else if (currentRequestId) {
         // On a specific request page, pre-fill request info
-        requestNameElement.textContent = requestName || `Požadavek #${requestId}`;
+        if (requestNameElement) {
+            requestNameElement.textContent = currentRequestName || `Požadavek #${currentRequestId}`;
+        }
+        if (requestInfo) {
+            requestInfo.classList.remove('hidden');
+        }
     }
 
     // Start timer button
-    startBtn.addEventListener('click', function() {
-        // If we're on a specific request page, use that request ID
-        const activeRequestId = requestId || prompt('Zadejte ID požadavku, pro který chcete měřit čas:');
+    if (startBtn) {
+        startBtn.addEventListener('click', function() {
+            // If we're on a specific request page, use that request ID
+            const activeRequestId = currentRequestId || prompt('Zadejte ID požadavku, pro který chcete měřit čas:');
 
-        if (activeRequestId) {
-            TimeTracker.start(activeRequestId);
+            if (activeRequestId) {
+                TimeTracker.start(activeRequestId);
 
-            activeControls.classList.remove('hidden');
-            startBtn.classList.add('hidden');
-            activeSession.classList.remove('hidden');
-            requestInfo.classList.remove('hidden');
+                if (activeControls) activeControls.classList.remove('hidden');
+                if (startBtn) startBtn.classList.add('hidden');
+                if (activeSession) activeSession.classList.remove('hidden');
+                if (requestInfo) requestInfo.classList.remove('hidden');
 
-            // If we're not on a specific request page, get the request name
-            if (!requestId) {
-                fetchRequestName(activeRequestId).then(name => {
-                    requestNameElement.textContent = name || `Požadavek #${activeRequestId}`;
-                });
-            } else {
-                requestNameElement.textContent = requestName || `Požadavek #${requestId}`;
+                // If we're not on a specific request page, get the request name
+                if (!currentRequestId) {
+                    fetchRequestName(activeRequestId).then(nameData => {
+                        const name = nameData?.name || `Požadavek #${activeRequestId}`;
+                        if (requestNameElement) requestNameElement.textContent = name;
+                    });
+                } else {
+                    if (requestNameElement) {
+                        requestNameElement.textContent = currentRequestName || `Požadavek #${currentRequestId}`;
+                    }
+                }
             }
-        }
-    });
+        });
+    }
 
     // Stop timer button
-    stopBtn.addEventListener('click', function() {
-        const result = TimeTracker.stop();
-        if (result) {
-            showReportModal(result);
-        }
-
-        resetTimerUI();
-    });
+    if (stopBtn) {
+        stopBtn.addEventListener('click', function() {
+            const result = TimeTracker.stop();
+            if (result) {
+                showReportModal(result);
+            }
+        });
+    }
 
     // Cancel timer button
-    cancelBtn.addEventListener('click', function() {
-        if (confirm('Opravdu chcete zrušit měření času? Data budou ztracena.')) {
-            TimeTracker.cancel();
-            resetTimerUI();
-        }
-    });
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            if (confirm('Opravdu chcete zrušit měření času? Data budou ztracena.')) {
+                TimeTracker.cancel();
+                resetTimerUI();
+            }
+        });
+    }
 
     // Save report button
-    saveReportBtn.addEventListener('click', function() {
-        if (reportForm.checkValidity()) {
-            saveReport();
-        } else {
-            reportForm.reportValidity();
-        }
-    });
+    if (saveReportBtn) {
+        saveReportBtn.addEventListener('click', function() {
+            if (reportForm && reportForm.checkValidity()) {
+                saveReport();
+            } else if (reportForm) {
+                reportForm.reportValidity();
+            }
+        });
+    }
 
     // Cancel report button
-    cancelReportBtn.addEventListener('click', function() {
-        reportModal.classList.add('hidden');
-    });
+    if (cancelReportBtn) {
+        cancelReportBtn.addEventListener('click', function() {
+            if (reportModal) {
+                reportModal.classList.add('hidden');
+                resetTimerUI();
+            }
+        });
+    }
 
     function resetTimerUI() {
-        activeControls.classList.add('hidden');
-        startBtn.classList.remove('hidden');
-        activeSession.classList.add('hidden');
-        timerElement.textContent = '00:00:00';
+        if (activeControls) activeControls.classList.add('hidden');
+        if (startBtn) startBtn.classList.remove('hidden');
+        if (activeSession) activeSession.classList.add('hidden');
+        if (timerElement) timerElement.textContent = '00:00:00';
+        if (differentRequestWarning) differentRequestWarning.classList.add('hidden');
 
         // Only hide request info if we're not on a specific request page
-        if (!requestId) {
+        if (!currentRequestId && requestInfo) {
             requestInfo.classList.add('hidden');
         }
     }
 
     function showReportModal(result) {
         // Fill in the form values
-        formRequestId.value = result.requestId;
-        formWorkStart.value = result.startTime.toISOString();
-        formWorkEnd.value = result.endTime.toISOString();
+        if (formRequestId) formRequestId.value = result.requestId;
+        if (formWorkStart) formWorkStart.value = result.startTime.toISOString();
+        if (formWorkEnd) formWorkEnd.value = result.endTime.toISOString();
 
         // Calculate minutes from seconds and round up
         const totalMinutes = Math.ceil(result.totalSeconds / 60);
-        formWorkTotal.value = totalMinutes;
+        if (formWorkTotal) formWorkTotal.value = totalMinutes;
 
         // Update summary
-        summaryStart.textContent = formatDateTime(result.startTime);
-        summaryEnd.textContent = formatDateTime(result.endTime);
-        summaryTotal.textContent = formatDuration(result.totalSeconds);
-        summaryMinutes.textContent = totalMinutes + ' min';
+        if (summaryStart) summaryStart.textContent = formatDateTime(result.startTime);
+        if (summaryEnd) summaryEnd.textContent = formatDateTime(result.endTime);
+        if (summaryTotal) summaryTotal.textContent = formatDuration(result.totalSeconds);
+        if (summaryMinutes) summaryMinutes.textContent = totalMinutes + ' min';
 
         // Show the modal
-        reportModal.classList.remove('hidden');
+        if (reportModal) reportModal.classList.remove('hidden');
     }
 
     function saveReport() {
-        // Create form data
+        // Create form data from the report form
         const formData = new FormData(reportForm);
 
-        // Add additional fields
-        formData.append('state', 1); // Active
+        // Add CSRF token as form field rather than header
+        formData.append('_token', formCsrfToken);
 
         // Send data using fetch
         fetch('/request-reports', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: formData
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            // If status is 2xx, consider it a success regardless of content
+            if (response.ok) {
+                // Don't try to parse JSON, just return success status
+                return { success: true };
             }
-            return response.json();
+
+            // Only try to parse JSON for error messages
+            if (response.headers.get('content-type')?.includes('application/json')) {
+                return response.json().then(err => {
+                    throw new Error(err.message || 'Network response was not ok');
+                });
+            } else {
+                throw new Error('Server returned an error');
+            }
         })
         .then(data => {
             // Hide modal
-            reportModal.classList.add('hidden');
+            if (reportModal) reportModal.classList.add('hidden');
+
+            // Reset UI
+            resetTimerUI();
 
             // Show success message
             alert('Report byl úspěšně uložen!');
 
-            // Reload page if on request detail
+            // Reload page if on request detail to show the new report
             if (window.location.href.includes('/requests/')) {
                 window.location.reload();
             }
         })
         .catch(error => {
             console.error('Error saving report:', error);
-            alert('Při ukládání reportu došlo k chybě. Zkuste to prosím znovu.');
+
+            // Still check if data was saved despite error
+            if (window.location.href.includes('/requests/')) {
+                // Refresh the page anyway to see if the report was actually saved
+                window.location.reload();
+            } else {
+                alert('Při ukládání reportu došlo k chybě: ' + error.message);
+            }
         });
     }
 
@@ -202,12 +254,9 @@ function initTimeTracker() {
                 }
                 return response.json();
             })
-            .then(data => {
-                return data.name;
-            })
             .catch(error => {
                 console.error('Error fetching request name:', error);
-                return null;
+                return { name: null };
             });
     }
 
