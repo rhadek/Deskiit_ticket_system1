@@ -140,7 +140,7 @@
                                                 {{-- Image --}}
                                                 <img src="{{ route('media.show', $file->id) }}"
                                                     alt="{{ $file->name }}"
-                                                    class="max-h-16 max-w-full object-contain">
+                                                    class="max-w-full object-contain">
                                             @elseif($file->kind == 2)
                                                 {{-- PDF --}}
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-600"
