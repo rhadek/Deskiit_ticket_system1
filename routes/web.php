@@ -3,6 +3,7 @@
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RequestController;
@@ -22,6 +23,18 @@ use App\Http\Controllers\UserDashboardController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::middleware('auth')->group(function () {
+    // POST route for storing new media
+    Route::post('/media', [MediaController::class, 'store'])->name('media.store');
+
+    // GET routes for downloading and viewing media
+    Route::get('/media/{media}/download', [MediaController::class, 'download'])->name('media.download');
+    Route::get('/media/{media}/show', [MediaController::class, 'show'])->name('media.show');
+
+    // DELETE route for removing media
+    Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
+});
 
 Route::prefix('api')->group(function () {
     Route::get('/requests/{id}/name', [App\Http\Controllers\Api\TimeTrackerController::class, 'getRequestName']);

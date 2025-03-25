@@ -105,6 +105,15 @@
                 </div>
             </div>
 
+            <!-- Přílohy požadavku -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-6 text-gray-900">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Přílohy požadavku</h3>
+
+                    <x-media-display :entity-type="'request'" :entity-id="$request->id" :show-delete-button="Auth::guard('customer')->user()->kind == 3" />
+                </div>
+            </div>
+
             <!-- Zprávy -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
@@ -132,6 +141,24 @@
                                     </div>
                                 </div>
                                 <div class="text-gray-700 whitespace-pre-wrap">{{ $message->message }}</div>
+
+                                <!-- Přílohy zprávy -->
+                                @if($message->media && $message->media->count() > 0)
+                                    <div class="mt-3 pt-3 border-t border-gray-200">
+                                        <p class="text-sm font-medium text-gray-700 mb-2">Přílohy:</p>
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach($message->media as $mediaItem)
+                                                <a href="{{ route('media.download', $mediaItem->id) }}"
+                                                   class="inline-flex items-center px-2 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md text-xs font-medium text-gray-700 transition">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    {{ $mediaItem->name }}
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         @empty
                             <p class="text-gray-500 text-center">Žádné zprávy k tomuto požadavku.</p>
@@ -144,7 +171,7 @@
                         <div class="mt-8">
                             <h4 class="text-md font-medium text-gray-900 mb-2">Přidat odpověď</h4>
                             <form action="{{ route('customer.requests.add-message', ['id' => $request->id]) }}"
-                                method="POST">
+                                method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div>
                                     <textarea name="message" rows="4"
@@ -152,6 +179,23 @@
                                         placeholder="Zadejte vaši zprávu..." required></textarea>
                                     <x-input-error :messages="$errors->get('message')" class="mt-2" />
                                 </div>
+
+                                <!-- Přidání souboru -->
+                                <div class="mt-4">
+                                    <label for="file" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Příloha (volitelně)
+                                    </label>
+                                    <input type="file" id="file" name="file" class="block w-full text-sm text-gray-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-md file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-indigo-50 file:text-indigo-700
+                                        hover:file:bg-indigo-100">
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        Maximální velikost souboru: 10MB. Podporované typy: obrázky, PDF, dokumenty, ZIP.
+                                    </p>
+                                </div>
+
                                 <div class="mt-4 flex justify-end">
                                     <button type="submit"
                                         class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">

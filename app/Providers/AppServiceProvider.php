@@ -21,5 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Blade::component('customer.layouts.app', 'customer-layout');
+        Blade::component('media-display', \App\View\Components\MediaDisplay::class);
+        Blade::component('media-upload', \App\View\Components\MediaUpload::class);
     }
 }

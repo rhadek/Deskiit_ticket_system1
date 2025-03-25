@@ -209,7 +209,22 @@ class RequestController extends Controller
             $messageData['id_user'] = Auth::id() ?? 1;
         }
 
-        RequestMessage::create($messageData);
+        $message = RequestMessage::create($messageData);
+
+        // Handle file upload if provided
+        if ($httpRequest->hasFile('file')) {
+            $file = $httpRequest->file('file');
+
+            // You could validate the file here, or let the MediaController handle it
+
+            // Create temporary redirect to media controller
+            return redirect()->route('media.store', [
+                'file' => $file,
+                'entity_type' => 'message',
+                'entity_id' => $message->id,
+                'redirect_url' => route('requests.show', $request)
+            ]);
+        }
 
         return back()->with('success', 'Zpráva byla úspěšně přidána.');
     }

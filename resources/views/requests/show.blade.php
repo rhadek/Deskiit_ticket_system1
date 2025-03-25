@@ -216,6 +216,9 @@
                                     placeholder="Zadejte vaši zprávu..." required></textarea>
                                 <x-input-error :messages="$errors->get('message')" class="mt-2" />
                             </div>
+                            <div class="mt-4">
+                                <x-media-upload :entity-type="'message'" :entity-id="$lastMessageId ?? 0" />
+                            </div>
                             <div class="mt-4 flex justify-end">
                                 <button type="submit"
                                     class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
@@ -224,6 +227,14 @@
                             </div>
                         </form>
                     </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-6 text-gray-900">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Přílohy</h3>
+
+                    <x-media-display :entity-type="'request'" :entity-id="$request->id" :show-delete-button="auth()->user()->kind == 3" />
                 </div>
             </div>
 

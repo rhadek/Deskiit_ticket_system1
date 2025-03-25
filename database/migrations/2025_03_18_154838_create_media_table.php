@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->smallInteger('state');
             $table->smallInteger('kind');
-            $table->string('name', 100);
-            $table->binary('file');
+            $table->string('name', 255);
+            $table->string('file', 255);
             $table->timestamps();
         });
     }

@@ -135,12 +135,11 @@ class RequestController extends Controller
     {
         $user = Auth::guard('customer')->user();
 
-        $ticketRequest = TicketRequest::findOrFail($id);
+        $ticketRequest = \App\Models\Request::findOrFail($id);
 
-        if ($ticketRequest->id_custuser !== $user->id) {
+        if ($ticketRequest->id_custuser !== $user->id && $user->kind != 3) {
             abort(403, 'Neautorizovaný přístup.');
         }
-
 
         if ($ticketRequest->state == 5) {
             return back()->with('error', 'Nelze přidat zprávu k uzavřenému požadavku.');
@@ -148,9 +147,10 @@ class RequestController extends Controller
 
         $validated = $request->validate([
             'message' => 'required|string|max:1000',
+            'file' => 'nullable|file|max:10240', // 10MB max
         ]);
 
-        RequestMessage::create([
+        $message = RequestMessage::create([
             'id_request' => $ticketRequest->id,
             'id_custuser' => $user->id,
             'id_user' => null,
@@ -160,6 +160,28 @@ class RequestController extends Controller
             'message' => $validated['message'],
         ]);
 
+        // Handle file upload if provided
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $originalName = $file->getClientOriginalName();
+            $fileName = \Illuminate\Support\Str::uuid() . '_' . $originalName;
+
+            // Store file in storage/app/public/uploads directory
+            $filePath = $file->storeAs('uploads', $fileName, 'public');
+
+            if ($filePath) {
+                // Create media record
+                $media = \App\Models\Media::create([
+                    'state' => 1,
+                    'kind' => $this->determineMediaKind($file->getMimeType()),
+                    'name' => $originalName,
+                    'file' => $fileName, // Store just the filename
+                ]);
+
+                // Attach media to the message
+                $message->media()->attach($media->id);
+            }
+        }
 
         if ($ticketRequest->state == 4 || $ticketRequest->state == 3) {
             $ticketRequest->state = 2;
@@ -170,37 +192,56 @@ class RequestController extends Controller
             ->with('success', 'Zpráva byla úspěšně přidána.');
     }
 
+    /**
+     * Helper method to determine the kind of media based on mime type.
+     */
+    private function determineMediaKind(string $mimeType): int
+    {
+        if (str_starts_with($mimeType, 'image/')) {
+            return 1; // Image
+        } elseif ($mimeType === 'application/pdf') {
+            return 2; // PDF
+        } elseif (str_contains($mimeType, 'word') || str_contains($mimeType, 'excel') || str_contains($mimeType, 'spreadsheet')) {
+            return 3; // Office Document
+        } elseif ($mimeType === 'text/plain' || $mimeType === 'text/csv') {
+            return 4; // Text file
+        } elseif ($mimeType === 'application/zip') {
+            return 5; // Archive
+        } else {
+            return 99; // Other
+        }
+    }
+
 
     public function confirmResolution($id)
-{
-    $user = Auth::guard('customer')->user();
-    $ticketRequest = \App\Models\Request::findOrFail($id);
+    {
+        $user = Auth::guard('customer')->user();
+        $ticketRequest = \App\Models\Request::findOrFail($id);
 
 
-    if ($ticketRequest->id_custuser !== $user->id && $user->kind != 3) {
-        abort(403, 'Neautorizovaný přístup.');
-    }
+        if ($ticketRequest->id_custuser !== $user->id && $user->kind != 3) {
+            abort(403, 'Neautorizovaný přístup.');
+        }
 
 
-    if ($ticketRequest->state != 4) {
-        return back()->with('error', 'Požadavek musí být ve stavu "Vyřešeno", aby mohl být uzavřen.');
-    }
+        if ($ticketRequest->state != 4) {
+            return back()->with('error', 'Požadavek musí být ve stavu "Vyřešeno", aby mohl být uzavřen.');
+        }
 
 
-    $ticketRequest->state = 5;
-    $ticketRequest->save();
+        $ticketRequest->state = 5;
+        $ticketRequest->save();
 
-    RequestMessage::create([
-        'id_request' => $ticketRequest->id,
-        'id_custuser' => $user->id,
-        'inserted' => now(),
-        'state' => 1,
-        'kind' => 1,
-        'message' => 'Požadavek byl potvrzen jako vyřešený a uzavřen.',
-    ]);
+        RequestMessage::create([
+            'id_request' => $ticketRequest->id,
+            'id_custuser' => $user->id,
+            'inserted' => now(),
+            'state' => 1,
+            'kind' => 1,
+            'message' => 'Požadavek byl potvrzen jako vyřešený a uzavřen.',
+        ]);
 
-    return redirect()->route('customer.requests.show', $ticketRequest)
-        ->with('success', 'Požadavek byl úspěšně uzavřen.');
-
+        return redirect()->route('customer.requests.show', $ticketRequest)
+            ->with('success', 'Požadavek byl úspěšně uzavřen.');
     }
 }
