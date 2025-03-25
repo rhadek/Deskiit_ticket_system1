@@ -23,16 +23,15 @@ use App\Http\Controllers\UserDashboardController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
 Route::middleware('auth')->group(function () {
-    // POST route for storing new media
+    // POST route pro ukládání nových médií
     Route::post('/media', [MediaController::class, 'store'])->name('media.store');
 
-    // GET routes for downloading and viewing media
+    // GET routes pro stahování a zobrazení médií
     Route::get('/media/{media}/download', [MediaController::class, 'download'])->name('media.download');
     Route::get('/media/{media}/show', [MediaController::class, 'show'])->name('media.show');
 
-    // DELETE route for removing media
+    // DELETE route pro mazání médií
     Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
 });
 
