@@ -135,7 +135,7 @@
                                     </div>
 
                                     <div class="p-4 flex flex-col items-center">
-                                        <div class="mb-3 h-16 flex items-center justify-center">
+                                        <div class="items-center justify-center">
                                             @if ($file->kind == 1)
                                                 {{-- Image --}}
                                                 <img src="{{ route('media.show', $file->id) }}"

@@ -29,9 +29,14 @@ class MediaController extends BaseController
     ];
 
     public function __construct()
-    {
-        $this->middleware('auth');
-    }
+{
+    $this->middleware(function ($request, $next) {
+        if (!auth()->guard('web')->check() && !auth()->guard('customer')->check()) {
+            return redirect()->route('login');
+        }
+        return $next($request);
+    });
+}
 
     /**
      * Store a newly uploaded media file.
@@ -106,6 +111,9 @@ class MediaController extends BaseController
      */
     public function download(Media $media)
     {
+        if (!$this->canAccessMedia($media)) {
+            abort(403, 'Nemáte oprávnění ke stažení tohoto souboru.');
+        }
         // Check if file exists
         if (!Storage::disk('public')->exists('uploads/' . $media->file)) {
             return back()->with('error', 'Soubor nenalezen.');
@@ -113,6 +121,28 @@ class MediaController extends BaseController
 
         return Storage::disk('public')->download('uploads/' . $media->file, $media->name);
     }
+
+    private function canAccessMedia(Media $media)
+{
+    // Logika pro kontrolu, zda má uživatel přístup k médiu
+    $user = auth()->user();
+
+    // Přístup pro admin uživatele
+    if ($user && method_exists($user, 'kind') && $user->kind == 3) {
+        return true;
+    }
+
+    // Pro customer uživatele
+    if ($media->requests()->exists()) {
+        $request = $media->requests()->first();
+
+        // Customer uživatel musí být spojen s požadavkem nebo být adminem firmy
+        return $request->customerUser->id == $user->id ||
+               ($user->kind == 3 && $request->customerUser->id_customer == $user->id_customer);
+    }
+
+    return false;
+}
 
     /**
      * Display a media file.

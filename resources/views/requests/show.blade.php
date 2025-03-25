@@ -210,7 +210,7 @@
                                     </div>
 
                                     <div class="p-4 flex flex-col items-center">
-                                        <div class="mb-3 h-16 flex items-center justify-center">
+                                        <div class="items-center justify-center">
                                             @if ($file->kind == 1)
                                                 {{-- Image --}}
                                                 <img src="{{ route('media.show', $file->id) }}"
@@ -452,11 +452,9 @@
                                 <x-time-tracker :requestId="$request->id" :requestName="$request->name" />
                             </div>
 
-                            <div
-                                class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col justify-between">
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col justify-between">
                                 <div class="mb-2 text-sm font-medium text-gray-700">Manuální přidání reportu</div>
-                                <p class="text-sm text-gray-500 mb-4">Zapomněl si trackovat? Přidej report manuálně.
-                                </p>
+                                <p class="text-sm text-gray-500 mb-4">Zapomněl si trackovat? Přidej report manuálně.</p>
                                 <div>
                                     <a href="{{ route('request-reports.create', ['id_request' => $request->id]) }}"
                                         class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
@@ -467,7 +465,6 @@
                         </div>
                     </div>
 
-                    <!-- Výpis reportů práce -->
                     @if (count($request->reports) > 0)
                         <div class="overflow-x-auto mb-6">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -497,11 +494,35 @@
                                     @foreach ($request->reports as $report)
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @if (isset($report->user))
+                                                @if ($report->user)
                                                     {{ $report->user->fname }} {{ $report->user->lname }}
                                                 @else
                                                     <span class="text-red-500">Uživatel smazán</span>
                                                 @endif
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $report->work_start ? $report->work_start->format('d.m.Y H:i') : 'N/A' }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $report->work_end ? $report->work_end->format('d.m.Y H:i') : 'N/A' }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $report->work_total }} min
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                                                {{ $report->descript }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <a href="{{ route('request-reports.edit', $report) }}"
+                                                    class="text-indigo-600 hover:text-indigo-900 mr-3">Upravit</a>
+                                                <form action="{{ route('request-reports.destroy', $report) }}"
+                                                    method="POST" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900"
+                                                        onclick="return confirm('Opravdu chcete smazat tento report?')">Smazat</button>
+                                                </form>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

@@ -23,7 +23,7 @@ use App\Http\Controllers\UserDashboardController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth:web,customer'])->group(function () {
     // POST route pro ukládání nových médií
     Route::post('/media', [MediaController::class, 'store'])->name('media.store');
 
@@ -33,7 +33,11 @@ Route::middleware('auth')->group(function () {
 
     // DELETE route pro mazání médií
     Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
+    Route::post('requests/{id}/messages', [App\Http\Controllers\Customer\RequestController::class, 'addMessage'])
+            ->name('customer.requests.add-message');
+
 });
+
 
 Route::prefix('api')->group(function () {
     Route::get('/requests/{id}/name', [App\Http\Controllers\Api\TimeTrackerController::class, 'getRequestName']);
