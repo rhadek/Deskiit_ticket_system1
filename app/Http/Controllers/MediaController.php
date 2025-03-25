@@ -131,7 +131,6 @@ class MediaController extends BaseController
     if ($user && method_exists($user, 'kind') && $user->kind == 3) {
         return true;
     }
-
     // Pro customer uživatele
     if ($media->requests()->exists()) {
         $request = $media->requests()->first();

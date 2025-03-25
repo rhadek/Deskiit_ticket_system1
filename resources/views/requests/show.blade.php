@@ -396,7 +396,7 @@
                         {{-- Don't allow new messages if request is closed --}}
                         <div class="mt-8">
                             <h4 class="text-md font-medium text-gray-900 mb-2">Přidat odpověď</h4>
-                            <form action="{{ route('requests.add-message', $request) }}" method="POST"
+                            <form action="{{ route('requests.add-message', $request) }}" method="POST" enctype="multipart/form-data"
                                 enctype="multipart/form-data">
                                 @csrf
                                 <div>

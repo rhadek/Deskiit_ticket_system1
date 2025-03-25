@@ -189,6 +189,18 @@ class RequestController extends Controller
 
     public function addMessage(Request $httpRequest, TicketRequest $request): RedirectResponse
     {
+        if (Auth::user()->kind != 3) {
+            // Pro běžné uživatele - kontrolovat, jestli je přiřazen k projektové položce
+            $hasAccess = Auth::user()->projectItems()
+                ->where('project_items.id', $request->id_projectitem)
+                ->exists();
+
+            if (!$hasAccess) {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Nemáte oprávnění přidat zprávu k tomuto požadavku.');
+            }
+        }
+
         $validated = $httpRequest->validate([
             'message' => 'required|string|max:1000',
             'file' => 'nullable|file|max:10240', // 10MB max

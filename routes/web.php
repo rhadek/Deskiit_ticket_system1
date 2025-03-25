@@ -33,8 +33,6 @@ Route::middleware(['auth:web,customer'])->group(function () {
 
     // DELETE route pro mazání médií
     Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
-    Route::post('requests/{id}/messages', [App\Http\Controllers\Customer\RequestController::class, 'addMessage'])
-            ->name('customer.requests.add-message');
 
 });
 
