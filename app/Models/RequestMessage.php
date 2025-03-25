@@ -56,4 +56,12 @@ class RequestMessage extends Model
     {
         return $this->belongsTo(CustomerUser::class, 'id_custuser');
     }
+
+    /**
+     * The media that belong to the message.
+     */
+    public function media()
+    {
+        return $this->belongsToMany(Media::class, 'requestmessage_x_media', 'id_requestmessage', 'id_media');
+    }
 }

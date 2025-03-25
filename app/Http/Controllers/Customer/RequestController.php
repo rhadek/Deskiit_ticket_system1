@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Customer;
 
-use Illuminate\Routing\Controller;
-use App\Models\Request as TicketRequest;
-use App\Models\RequestMessage;
+use App\Models\Media;
 use App\Models\ProjectItem;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\RequestMessage;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Request as TicketRequest;
 
 class RequestController extends Controller
 {
@@ -131,51 +133,75 @@ class RequestController extends Controller
     }
 
 
+    protected $allowedMimeTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'text/plain',
+        'text/csv',
+        'application/zip'
+    ];
+
     public function addMessage(Request $request, $id)
     {
         $user = Auth::guard('customer')->user();
 
-        $ticketRequest = \App\Models\Request::findOrFail($id);
+        $ticketRequest = TicketRequest::findOrFail($id);
 
+        // Ensure the user has access to this request
         if ($ticketRequest->id_custuser !== $user->id && $user->kind != 3) {
             abort(403, 'Neautorizovaný přístup.');
         }
 
+        // Check if request is closed
         if ($ticketRequest->state == 5) {
             return back()->with('error', 'Nelze přidat zprávu k uzavřenému požadavku.');
         }
 
+        // Validate message
         $validated = $request->validate([
             'message' => 'required|string|max:1000',
             'file' => 'nullable|file|max:10240', // 10MB max
         ]);
 
+        // Create message
         $message = RequestMessage::create([
             'id_request' => $ticketRequest->id,
             'id_custuser' => $user->id,
-            'id_user' => null,
             'inserted' => now(),
             'state' => 1,
             'kind' => 1,
             'message' => $validated['message'],
         ]);
 
-        // Handle file upload if provided
+        // Handle file upload
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $originalName = $file->getClientOriginalName();
-            $fileName = \Illuminate\Support\Str::uuid() . '_' . $originalName;
 
-            // Store file in storage/app/public/uploads directory
+            // Validate file type
+            if (!in_array($file->getMimeType(), $this->allowedMimeTypes)) {
+                return back()->with('error', 'Nepodporovaný typ souboru.');
+            }
+
+            // Generate unique filename
+            $originalName = $file->getClientOriginalName();
+            $fileName = Str::uuid() . '_' . $originalName;
+
+            // Store file
             $filePath = $file->storeAs('uploads', $fileName, 'public');
 
             if ($filePath) {
                 // Create media record
-                $media = \App\Models\Media::create([
+                $media = Media::create([
                     'state' => 1,
                     'kind' => $this->determineMediaKind($file->getMimeType()),
                     'name' => $originalName,
-                    'file' => $fileName, // Store just the filename
+                    'file' => $fileName,
                 ]);
 
                 // Attach media to the message
@@ -183,6 +209,7 @@ class RequestController extends Controller
             }
         }
 
+        // Update request state if necessary
         if ($ticketRequest->state == 4 || $ticketRequest->state == 3) {
             $ticketRequest->state = 2;
             $ticketRequest->save();
@@ -193,7 +220,7 @@ class RequestController extends Controller
     }
 
     /**
-     * Helper method to determine the kind of media based on mime type.
+     * Determine the kind of media based on mime type.
      */
     private function determineMediaKind(string $mimeType): int
     {
@@ -210,38 +237,5 @@ class RequestController extends Controller
         } else {
             return 99; // Other
         }
-    }
-
-
-    public function confirmResolution($id)
-    {
-        $user = Auth::guard('customer')->user();
-        $ticketRequest = \App\Models\Request::findOrFail($id);
-
-
-        if ($ticketRequest->id_custuser !== $user->id && $user->kind != 3) {
-            abort(403, 'Neautorizovaný přístup.');
-        }
-
-
-        if ($ticketRequest->state != 4) {
-            return back()->with('error', 'Požadavek musí být ve stavu "Vyřešeno", aby mohl být uzavřen.');
-        }
-
-
-        $ticketRequest->state = 5;
-        $ticketRequest->save();
-
-        RequestMessage::create([
-            'id_request' => $ticketRequest->id,
-            'id_custuser' => $user->id,
-            'inserted' => now(),
-            'state' => 1,
-            'kind' => 1,
-            'message' => 'Požadavek byl potvrzen jako vyřešený a uzavřen.',
-        ]);
-
-        return redirect()->route('customer.requests.show', $ticketRequest)
-            ->with('success', 'Požadavek byl úspěšně uzavřen.');
     }
 }

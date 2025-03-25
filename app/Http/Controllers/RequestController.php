@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Request as TicketRequest;
-use App\Models\ProjectItem;
-use App\Models\CustomerUser;
 use App\Models\User;
-use App\Models\RequestMessage;
-use Illuminate\Http\Request;
+use App\Models\Media;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
+use App\Models\ProjectItem;
+use Illuminate\Support\Str;
+use App\Models\CustomerUser;
+use Illuminate\Http\Request;
+use App\Models\RequestMessage;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use App\Models\Request as TicketRequest;
 
 class RequestController extends Controller
 {
@@ -189,6 +191,7 @@ class RequestController extends Controller
     {
         $validated = $httpRequest->validate([
             'message' => 'required|string|max:1000',
+            'file' => 'nullable|file|max:10240', // 10MB max
         ]);
 
         $messageData = [
@@ -214,18 +217,46 @@ class RequestController extends Controller
         // Handle file upload if provided
         if ($httpRequest->hasFile('file')) {
             $file = $httpRequest->file('file');
+            $originalName = $file->getClientOriginalName();
+            $fileName = Str::uuid() . '_' . $originalName;
 
-            // You could validate the file here, or let the MediaController handle it
+            // Store file in storage/app/public/uploads directory
+            $filePath = $file->storeAs('uploads', $fileName, 'public');
 
-            // Create temporary redirect to media controller
-            return redirect()->route('media.store', [
-                'file' => $file,
-                'entity_type' => 'message',
-                'entity_id' => $message->id,
-                'redirect_url' => route('requests.show', $request)
-            ]);
+            if ($filePath) {
+                // Create media record
+                $media = Media::create([
+                    'state' => 1,
+                    'kind' => $this->determineMediaKind($file->getMimeType()),
+                    'name' => $originalName,
+                    'file' => $fileName, // Store just the filename
+                ]);
+
+                // Attach media to the message
+                $message->media()->attach($media->id);
+            }
         }
 
         return back()->with('success', 'Zpráva byla úspěšně přidána.');
+    }
+
+    /**
+     * Helper method to determine the kind of media based on mime type.
+     */
+    private function determineMediaKind(string $mimeType): int
+    {
+        if (str_starts_with($mimeType, 'image/')) {
+            return 1; // Image
+        } elseif ($mimeType === 'application/pdf') {
+            return 2; // PDF
+        } elseif (str_contains($mimeType, 'word') || str_contains($mimeType, 'excel') || str_contains($mimeType, 'spreadsheet')) {
+            return 3; // Office Document
+        } elseif ($mimeType === 'text/plain' || $mimeType === 'text/csv') {
+            return 4; // Text file
+        } elseif ($mimeType === 'application/zip') {
+            return 5; // Archive
+        } else {
+            return 99; // Other
+        }
     }
 }
