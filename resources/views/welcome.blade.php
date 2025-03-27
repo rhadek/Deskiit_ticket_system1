@@ -38,18 +38,24 @@
                                 Dashboard
                             </a>
                         @else
-                            @if (Route::has('customer.login'))
-                                <a href="{{ route('customer.login') }}" class="px-3 py-2 rounded-md text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300">
-                                    Zákaznický portál
+                            @if (Auth::guard('customer')->check())
+                                <a href="{{ url('/customer/dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Dashboard
                                 </a>
-                            @endif
-                            <a href="{{ route('login') }}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                                Přihlášení
-                            </a>
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    Registrace
+                            @else
+                                @if (Route::has('customer.login'))
+                                    <a href="{{ route('customer.login') }}" class="px-3 py-2 rounded-md text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300">
+                                        Zákaznický portál
+                                    </a>
+                                @endif
+                                <a href="{{ route('login') }}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                                    Přihlášení
                                 </a>
+                                @if (Route::has('register'))
+                                    <a href="{{ route('register') }}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        Registrace
+                                    </a>
+                                @endif
                             @endif
                         @endauth
                     @endif
