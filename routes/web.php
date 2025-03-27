@@ -23,6 +23,9 @@ use App\Http\Controllers\UserDashboardController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+
+
 Route::middleware(['auth:web,customer'])->group(function () {
     // POST route pro ukládání nových médií
     Route::post('/media', [MediaController::class, 'store'])->name('media.store');
@@ -49,6 +52,8 @@ Route::get('/dashboard', [UserDashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -69,21 +74,29 @@ Route::middleware('auth')->group(function () {
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
 
 
+
+
     Route::get('/request-reports/create', [RequestReportController::class, 'create'])->name('request-reports.create');
     Route::post('/request-reports', [RequestReportController::class, 'store'])->name('request-reports.store');
     Route::get('/request-reports/{requestReport}', [RequestReportController::class, 'show'])->name('request-reports.show');
     Route::get('/request-reports/{requestReport}/edit', [RequestReportController::class, 'edit'])->name('request-reports.edit');
     Route::put('/request-reports/{requestReport}', [RequestReportController::class, 'update'])->name('request-reports.update');
     Route::delete('/request-reports/{requestReport}', [RequestReportController::class, 'destroy'])->name('request-reports.destroy');
-    Route::get('customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
-    Route::get('projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
-    // Admin routes - chráněné přímou instancí IsAdmin middleware
     Route::middleware(IsAdmin::class)->group(function () {
         // CRUD pro firmy
         Route::resource('customers', CustomerController::class)->except(['show']);
 
         // CRUD pro projekty
+
         Route::resource('projects', ProjectController::class)->except(['show']);
+    });
+    Route::get('customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::get('projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+
+
+    // Admin routes - chráněné přímou instancí IsAdmin middleware
+    Route::middleware(IsAdmin::class)->group(function () {
+        // CRUD pro firmy
 
         // Cesty pro zákaznické uživatele vyžadující admin práva
         // DŮLEŽITÉ: create musí být před {customerUser} cestami

@@ -28,6 +28,7 @@ class ProjectController extends Controller
 
     public function create(Request $request): View
     {
+
         $customers = Customer::where('state', 1)->get();
         $selectedCustomer = null;
 
