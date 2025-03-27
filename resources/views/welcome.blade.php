@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>DeskIT - Systém pro správu projektů a požadavků</title>
+    <title>DeskiiT - Systém pro správu projektů a požadavků</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -17,7 +17,7 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">DeskIT</span>
+                        <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">DeskiiT</span>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                         <a href="#funkce" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600">
@@ -117,7 +117,7 @@
             <div class="lg:grid lg:grid-cols-12 lg:gap-8">
                 <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
                     <h1>
-                        <span class="block text-sm font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">DeskIT</span>
+                        <span class="block text-sm font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">DeskiiT</span>
                         <span class="mt-1 block text-4xl tracking-tight font-extrabold sm:text-5xl xl:text-6xl">
                             <span class="block text-gray-900 dark:text-white">Správa projektů a</span>
                             <span class="block text-indigo-600 dark:text-indigo-400">požadavků</span>
@@ -164,7 +164,7 @@
                     Komplexní řešení pro vaše projekty
                 </p>
                 <p class="mt-4 max-w-2xl text-xl text-gray-500 dark:text-gray-300 lg:mx-auto">
-                    DeskIT nabízí všechny nástroje, které potřebujete pro efektivní řízení projektů a správu požadavků.
+                    DeskiiT nabízí všechny nástroje, které potřebujete pro efektivní řízení projektů a správu požadavků.
                 </p>
             </div>
 
@@ -236,7 +236,7 @@
             <div class="lg:text-center">
                 <h2 class="text-base text-indigo-600 dark:text-indigo-400 font-semibold tracking-wide uppercase">Výhody</h2>
                 <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-                    Proč používat DeskIT?
+                    Proč používat DeskiiT?
                 </p>
                 <p class="mt-4 max-w-2xl text-xl text-gray-500 dark:text-gray-300 lg:mx-auto">
                     Objevte výhody, které vám přinese implementace našeho systému.
@@ -293,7 +293,7 @@
                     <span class="block">Připraveni začít?</span>
                 </h2>
                 <p class="mt-4 max-w-2xl text-xl text-gray-500 dark:text-gray-300 lg:mx-auto">
-                    Vyzkoušejte DeskIT ještě dnes a zlepšete způsob, jakým řídíte své projekty a komunikujete se zákazníky.
+                    Vyzkoušejte DeskiiT ještě dnes a zlepšete způsob, jakým řídíte své projekty a komunikujete se zákazníky.
                 </p>
                 <div class="mt-8 flex justify-center">
                     <div class="inline-flex rounded-md shadow">
@@ -317,7 +317,7 @@
             <div class="xl:grid xl:grid-cols-3 xl:gap-8">
                 <div class="space-y-8 xl:col-span-1">
                     <div class="flex items-center">
-                        <span class="text-2xl font-bold text-white">DeskIT</span>
+                        <span class="text-2xl font-bold text-white">DeskiiT</span>
                     </div>
                     <p class="text-gray-400 text-base">
                         Komplexní systém pro správu projektů, požadavků a komunikaci se zákazníky.
@@ -441,7 +441,7 @@
             </div>
             <div class="mt-12 border-t border-gray-700 pt-8">
                 <p class="text-base text-gray-400 xl:text-center">
-                    &copy; 2025 DeskIT. Všechna práva vyhrazena.
+                    &copy; 2025 DeskiiT. Všechna práva vyhrazena.
                 </p>
             </div>
         </div>
