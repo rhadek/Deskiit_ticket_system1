@@ -177,7 +177,6 @@
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Přílohy požadavku</h3>
 
-                    <!-- Display media -->
                     @if ($request->media && $request->media->count() > 0)
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
                             @foreach ($request->media as $file)
@@ -287,7 +286,6 @@
 
                     <!-- Form to add new media directly to the request -->
                     @if ($request->state != 5)
-                        {{-- Don't allow uploads if request is closed --}}
                         <div>
                             <form action="{{ route('media.store') }}" method="POST" enctype="multipart/form-data"
                                 class="border-2 border-dashed border-gray-300 rounded-lg p-4">
@@ -393,7 +391,6 @@
 
                     <!-- Formulář pro přidání nové zprávy -->
                     @if ($request->state != 5)
-                        {{-- Don't allow new messages if request is closed --}}
                         <div class="mt-8">
                             <h4 class="text-md font-medium text-gray-900 mb-2">Přidat odpověď</h4>
                             <form action="{{ route('requests.add-message', $request) }}" method="POST" enctype="multipart/form-data"

@@ -137,12 +137,10 @@
                                     <div class="p-4 flex flex-col items-center">
                                         <div class="items-center justify-center">
                                             @if ($file->kind == 1)
-                                                {{-- Image --}}
                                                 <img src="{{ route('media.show', $file->id) }}"
                                                     alt="{{ $file->name }}"
                                                     class="max-w-full object-contain">
                                             @elseif($file->kind == 2)
-                                                {{-- PDF --}}
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-600"
                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -150,7 +148,6 @@
                                                         d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                                                 </svg>
                                             @elseif($file->kind == 3)
-                                                {{-- Office Document --}}
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                     class="h-12 w-12 text-blue-600" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -159,7 +156,6 @@
                                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
                                             @elseif($file->kind == 4)
-                                                {{-- Text file --}}
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                     class="h-12 w-12 text-gray-600" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -168,7 +164,6 @@
                                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
                                             @elseif($file->kind == 5)
-                                                {{-- Archive --}}
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                     class="h-12 w-12 text-yellow-600" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -177,7 +172,6 @@
                                                         d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                                                 </svg>
                                             @else
-                                                {{-- Other --}}
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                     class="h-12 w-12 text-gray-400" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -212,7 +206,6 @@
 
                     <!-- Form to add new media directly to the request -->
                     @if ($request->state != 5)
-                        {{-- Don't allow uploads if request is closed --}}
                         <div>
                             <form action="{{ route('media.store') }}" method="POST" enctype="multipart/form-data"
                                 class="border-2 border-dashed border-gray-300 rounded-lg p-4">
@@ -318,7 +311,6 @@
 
                     <!-- Formulář pro přidání nové zprávy -->
                     @if ($request->state != 5)
-                        {{-- Don't allow new messages if request is closed --}}
                         <div class="mt-8">
                             <h4 class="text-md font-medium text-gray-900 mb-2">Přidat odpověď</h4>
                             <form action="{{ route('customer.requests.add-message', $request->id) }}" method="POST" enctype="multipart/form-data"

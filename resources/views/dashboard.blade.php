@@ -12,10 +12,11 @@
                     <h2 class="text-2xl font-bold mb-2">Dobrý den, {{ Auth::user()->fname }}!</h2>
                     <p class="text-gray-600">Vítejte v přehledu vašich projektů a požadavků.</p>
                 </div>
+
             </div>
 
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            {{-- <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <div class="flex items-center justify-between">
@@ -61,7 +62,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="flex flex-col md:flex-row gap-6">
 
@@ -122,57 +123,51 @@
 
                             <div class="mb-6">
                                 <h4 class="font-medium text-gray-700 mb-2">Podle stavu:</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    @forelse($grouped_by_state as $state => $items)
-                                        <div class="border rounded-lg p-4">
-                                            <h5 class="font-medium text-gray-700 mb-2">
-                                                {{ $state_names[$state] ?? 'Status ' . $state }}
-                                                <span class="text-sm text-gray-500">({{ count($items) }})</span>
-                                            </h5>
-                                            @php
-                                                $statusColor = match ((int)$state) {
-                                                    1 => 'bg-blue-100 text-blue-800',
-                                                    2 => 'bg-yellow-100 text-yellow-800',
-                                                    3 => 'bg-purple-100 text-purple-800',
-                                                    4 => 'bg-green-100 text-green-800',
-                                                    5 => 'bg-gray-100 text-gray-800',
-                                                    default => 'bg-gray-100 text-gray-800'
-                                                };
-                                            @endphp
-                                            <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $statusColor }}">
-                                                {{ $state_names[$state] ?? 'Status ' . $state }}
-                                            </span>
-                                            <div class="space-y-2">
-                                                @foreach($items as $item)
-                                                    <div class="border-b pb-2 last:border-b-0">
-                                                        <a href="{{ route('project_items.show', $item) }}" class="text-blue-600 hover:text-blue-900">
-                                                            {{ $item->name }}
-                                                        </a>
-                                                        <div class="text-xs text-gray-500">
-                                                            {{ $item->project->name }}
-                                                        </div>
-                                                        @php
-                                                            $itemStatusColor = match ((int)$item->state) {
-                                                                1 => 'bg-blue-100 text-blue-800',
-                                                                2 => 'bg-yellow-100 text-yellow-800',
-                                                                3 => 'bg-purple-100 text-purple-800',
-                                                                4 => 'bg-green-100 text-green-800',
-                                                                5 => 'bg-gray-100 text-gray-800',
-                                                                default => 'bg-gray-100 text-gray-800'
-                                                            };
-                                                        @endphp
-                                                        <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded-full {{ $itemStatusColor }}">
-                                                            {{ $state_names[$item->state] ?? 'Status ' . $item->state }}
-                                                        </span>
+                                @php
+                                    // Seřazení kategorií od 1 do 5
+                                    $sorted_states = collect([1, 2, 3, 4, 5])
+                                        ->filter(function($state) use ($grouped_by_state) {
+                                            return isset($grouped_by_state[$state]);
+                                        })
+                                        ->values(); // Důležité pro získání sekvenčních indexů
+
+                                    // Celkový počet stavů
+                                    $total_states = $sorted_states->count();
+                                @endphp
+
+                                <div class="relative overflow-hidden">
+                                    <div class="overflow-x-auto snap-x scrollbar pb-4">
+                                        <div class="flex overflow-x-auto space-x-4 w-full">
+                                            @foreach($sorted_states as $i => $state)
+                                            <div class="flex-none w-1/2 p-2 snap-start">
+                                                <div class="border rounded-lg p-4 h-full">
+                                                    <h5 class="font-medium text-gray-700 mb-2">
+                                                        {{ $state_names[$state] ?? 'Status ' . $state }}
+                                                        <span class="text-sm text-gray-500">({{ count($grouped_by_state[$state]) }})</span>
+                                                    </h5>
+                                                    <div class="space-y-2 max-h-80 overflow-y-auto">
+                                                        @foreach($grouped_by_state[$state] as $item)
+                                                            <div class="border-b pb-2 last:border-b-0">
+                                                                <a href="{{ route('project_items.show', $item) }}" class="text-blue-600 hover:text-blue-900">
+                                                                    {{ $item->name }}
+                                                                </a>
+                                                                <div class="text-xs text-gray-500">
+                                                                    {{ $item->project->name }}
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
                                                     </div>
-                                                @endforeach
+                                                </div>
                                             </div>
+                                            @endforeach
+
+                                            @if($total_states == 0)
+                                                <div class="w-full text-center text-gray-500">
+                                                    Nebyly nalezeny žádné projektové položky.
+                                                </div>
+                                            @endif
                                         </div>
-                                    @empty
-                                        <div class="col-span-2 text-center text-gray-500">
-                                            Nebyly nalezeny žádné projektové položky.
-                                        </div>
-                                    @endforelse
+                                    </div>
                                 </div>
                             </div>
 

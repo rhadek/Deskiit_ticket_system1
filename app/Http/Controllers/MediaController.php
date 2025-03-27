@@ -141,7 +141,7 @@ class MediaController extends BaseController
                ($user->kind == 3 && $request->customerUser->id_customer == $user->id_customer);
     }
 
-    return false;
+    return true;
 }
 
     /**
