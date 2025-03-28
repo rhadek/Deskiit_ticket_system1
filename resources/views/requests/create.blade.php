@@ -15,13 +15,25 @@
 
                         <div>
                             <x-input-label for="id_projectitem" :value="__('Projektová položka')" />
-                            <select id="id_projectitem" name="id_projectitem" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
-                                @foreach($projectItems as $item)
-                                    <option value="{{ $item->id }}" {{ $selectedProjectItem && $selectedProjectItem->id == $item->id ? 'selected' : '' }}>
-                                        {{ $item->name }} ({{ $item->project->name }} - {{ $item->project->customer->name }})
-                                    </option>
-                                @endforeach
-                            </select>
+                            @if ($selectedProjectItem)
+                                <x-text-input id="id_projectitem_display" class="block mt-1 w-full bg-gray-100"
+                                    type="text"
+                                    value="{{ $selectedProjectItem->name }} ({{ $selectedProjectItem->project->name }} - {{ $selectedProjectItem->project->customer->name }})"
+                                    disabled />
+                                <input type="hidden" name="id_projectitem"
+                                    value="{{ $selectedProjectItem->id }}">
+                            @else
+                                <select id="id_projectitem" name="id_projectitem"
+                                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
+                                    <option value="">Vyberte projektovou položku</option>
+                                    @foreach ($projectItems as $item)
+                                        <option value="{{ $item->id }}">
+                                            {{ $item->name }} ({{ $item->project->name }} -
+                                            {{ $item->project->customer->name }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @endif
                             <x-input-error :messages="$errors->get('id_projectitem')" class="mt-2" />
                         </div>
 

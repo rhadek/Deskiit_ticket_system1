@@ -61,34 +61,57 @@ class RequestController extends Controller
 
     public function create(Request $request): View
     {
-        $projectItems = [];
-        $selectedProjectItem = null;
+        // Diagnostické výpisy
+        $projectItems = ProjectItem::all(); // Načtení VŠECH položek bez filtrace
+        $user_items = Auth::user()->projectItems; // Načtení položek přes relaci
 
-        if (Auth::user()->kind == 3) {
-            $projectItems = ProjectItem::where('state', 1)
-                ->with('project.customer')
-                ->get();
-        } else {
-            $projectItems = Auth::user()->projectItems()
-                ->where('project_items.state', 1)
-                ->with('project.customer')
-                ->get();
-        }
+        // Výpis do logu
+        \Log::info('All project items: ' . $projectItems->count());
+        \Log::info('User project items: ' . $user_items->count());
+
+        // Přímé načtení přes SQL pro srovnání
+        $user_id = Auth::id();
+        $sql_items = \DB::table('project_items')
+            ->join('user_x_projectitem', 'project_items.id', '=', 'user_x_projectitem.id_projectitem')
+            ->where('user_x_projectitem.id_user', $user_id)
+            ->get();
+
+        \Log::info('SQL project items: ' . count($sql_items));
+
+        // Standardní logika
+        $selectedProjectItem = null;
+        $customerUsers = [];
 
         if ($request->has('id_projectitem')) {
-            $selectedProjectItem = ProjectItem::with('project.customer')->findOrFail($request->id_projectitem);
+            $selectedProjectItem = ProjectItem::with('project.customer')
+                ->findOrFail($request->id_projectitem);
         }
 
-        $customerUsers = [];
+        // Použití úplně jiného přístupu k načtení položek:
+        if (Auth::user()->kind == 3) {
+            // Admin vidí všechny položky
+            $projectItems = ProjectItem::with('project.customer')->get();
+        } else {
+            // Pokus o přístup přes tabulku a JOIN, ne přes relaci
+            $projectItems = ProjectItem::join('user_x_projectitem', 'project_items.id', '=', 'user_x_projectitem.id_projectitem')
+                ->where('user_x_projectitem.id_user', Auth::id())
+                ->select('project_items.*')
+                ->with('project.customer')
+                ->get();
+        }
+
+        // Zákaznické uživatele načteme jen pokud je admin
         if (Auth::user()->kind == 3) {
             if ($selectedProjectItem) {
-                $customerUsers = $selectedProjectItem->customerUsers;
+                $customerUsers = CustomerUser::where('id_customer', $selectedProjectItem->project->id_customer)
+                    ->where('state', 1)
+                    ->get();
             } else {
                 $customerUsers = CustomerUser::where('state', 1)->get();
             }
         }
 
-        dd($projectItems);
+
 
         return view('requests.create', compact('projectItems', 'selectedProjectItem', 'customerUsers'));
     }
