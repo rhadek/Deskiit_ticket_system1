@@ -56,7 +56,7 @@ class RequestController extends Controller
             ->with(['customerUser'])
             ->paginate(10);
 
-        return view('requests.project_item_requests', compact('requests', 'projectItem'));
+        return view('requests.create', compact('requests', 'projectItem'));
     }
 
     public function create(Request $request): View
@@ -87,6 +87,8 @@ class RequestController extends Controller
                 $customerUsers = CustomerUser::where('state', 1)->get();
             }
         }
+
+        dd($projectItems);
 
         return view('requests.create', compact('projectItems', 'selectedProjectItem', 'customerUsers'));
     }

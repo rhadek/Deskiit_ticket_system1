@@ -52,7 +52,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/projects/{project}/items', [ProjectItemController::class, 'projectItems'])->name('projects.items');
 
-    Route::get('/project-items/{projectItem}/requests', [RequestController::class, 'projectItemRequests'])->name('project_items.requests');
+    Route::get('/project-items/{projectItem}/requests', [RequestController::class, 'create'])->name('project_items.requests');
 
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
 
