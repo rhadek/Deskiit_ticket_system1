@@ -67,7 +67,6 @@
                             <x-input-error :messages="$errors->get('state')" class="mt-2" />
                         </div>
 
-
                         <div class="mt-4">
                             <x-input-label for="kind" :value="__('Typ')" />
                             <select id="kind" name="kind" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -78,7 +77,7 @@
                             <x-input-error :messages="$errors->get('kind')" class="mt-2" />
                         </div>
 
-                     
+
                         @if($selectedProjectItem)
                             <input type="hidden" name="redirect_to_projectitem" value="1">
                         @endif

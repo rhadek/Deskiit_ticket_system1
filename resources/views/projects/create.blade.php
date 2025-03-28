@@ -12,7 +12,6 @@
                     <form method="POST" action="{{ route('projects.store') }}">
                         @csrf
 
-                        <!-- Firma -->
                         <div>
                             <x-input-label for="id_customer" :value="__('Firma')" />
                             <select id="id_customer" name="id_customer" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -25,14 +24,12 @@
                             <x-input-error :messages="$errors->get('id_customer')" class="mt-2" />
                         </div>
 
-                        <!-- Název projektu -->
                         <div class="mt-4">
                             <x-input-label for="name" :value="__('Název projektu')" />
                             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
-                        <!-- Stav -->
                         <div class="mt-4">
                             <x-input-label for="state" :value="__('Stav')" />
                             <select id="state" name="state" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -42,7 +39,6 @@
                             <x-input-error :messages="$errors->get('state')" class="mt-2" />
                         </div>
 
-                        <!-- Typ -->
                         <div class="mt-4">
                             <x-input-label for="kind" :value="__('Typ')" />
                             <select id="kind" name="kind" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
@@ -53,7 +49,6 @@
                             <x-input-error :messages="$errors->get('kind')" class="mt-2" />
                         </div>
 
-                        <!-- Přesměrování zpět k firmě -->
                         @if($selectedCustomer)
                             <input type="hidden" name="redirect_to_customer" value="1">
                         @endif
