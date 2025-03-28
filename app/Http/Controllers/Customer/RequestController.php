@@ -71,27 +71,58 @@ class RequestController extends Controller
     }
 
     public function create(Request $request, $id_projectitem = null)
-    {
-        $user = Auth::guard('customer')->user();
+{
+    $user = Auth::guard('customer')->user();
 
-        $query = $user->projectItems()
-            ->where('project_items.state', 1)
-            ->with('project');
+    // Diagnostické výpisy
+    $projectItems = ProjectItem::all(); // Načtení VŠECH položek bez filtrace
+    $user_items = $user->projectItems; // Načtení položek přes relaci
 
-        $selectedProjectItem = null;
-        if ($id_projectitem) {
-            $selectedProjectItem = ProjectItem::find($id_projectitem);
+    // Výpis do logu
+    \Log::info('All project items: ' . $projectItems->count());
+    \Log::info('Customer user project items: ' . $user_items->count());
 
-            if (!$selectedProjectItem || !$user->projectItems()->where('project_items.id', $id_projectitem)->exists()) {
-                return redirect()->route('customer.requests.create')
-                    ->with('error', 'Nemáte přístup k vybrané projektové položce.');
-            }
-        }
+    // Přímé načtení přes SQL pro srovnání
+    $user_id = $user->id;
+    $sql_items = \DB::table('project_items')
+        ->join('custuser_x_projectitem', 'project_items.id', '=', 'custuser_x_projectitem.id_projectitem')
+        ->where('custuser_x_projectitem.id_custuser', $user_id)
+        ->get();
 
-        $projectItems = $query->get();
+    \Log::info('SQL project items: ' . count($sql_items));
 
-        return view('customer.requests.create', compact('projectItems', 'selectedProjectItem'));
+    // Standardní logika
+    $selectedProjectItem = null;
+
+    // Pokud přicházíme s id_projectitem jako argumentem nebo v URL
+    if ($id_projectitem) {
+        $selectedProjectItem = ProjectItem::with('project.customer')
+            ->find($id_projectitem);
+    } elseif ($request->has('id_projectitem')) {
+        $selectedProjectItem = ProjectItem::with('project.customer')
+            ->find($request->id_projectitem);
     }
+
+    // Použití úplně jiného přístupu k načtení položek:
+    if ($user->kind == 3) {
+        // Admin vidí všechny položky projektu své firmy
+        $projectItems = ProjectItem::whereHas('project', function($query) use ($user) {
+            $query->where('id_customer', $user->id_customer);
+        })->with('project')->get();
+    } else {
+        // Pokus o přístup přes tabulku a JOIN, ne přes relaci
+        $projectItems = ProjectItem::join('custuser_x_projectitem', 'project_items.id', '=', 'custuser_x_projectitem.id_projectitem')
+            ->where('custuser_x_projectitem.id_custuser', $user->id)
+            ->select('project_items.*')
+            ->with('project')
+            ->get();
+    }
+
+    // Další diagnostika
+
+
+    return view('customer.requests.create', compact('projectItems', 'selectedProjectItem'));
+}
 
     public function store(Request $request)
     {

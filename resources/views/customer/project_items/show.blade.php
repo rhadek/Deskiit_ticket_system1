@@ -114,8 +114,7 @@
                         <div class="p-6 text-gray-900">
                             <div class="flex justify-between mb-4">
                                 <h3 class="text-lg font-medium text-gray-900">Moje požadavky</h3>
-                                <a href="{{ route('customer.requests.create', ['id_projectitem' => $projectItem->id]) }}"
-                                   class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
+                                <a href="{{ route('customer.project_items.requests', ['projectItem' => $projectItem->id]) }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
                                     {{ __('Nový požadavek') }}
                                 </a>
                             </div>
