@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\RequestMessage;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use App\Models\Request as TicketRequest;
@@ -61,7 +62,11 @@ class RequestController extends Controller
 
     public function create(Request $request): View
     {
-        // Diagnostické výpisy
+        $projectPriorities = DB::table('project_priorities')
+            ->select('project_priorities.*') // Ensure only project_priorities columns are selected
+            ->join('projects', 'project_priorities.id_project', '=', 'projects.id')
+            ->where('projects.state', 1)
+            ->get();
         $projectItems = ProjectItem::all(); // Načtení VŠECH položek bez filtrace
         $user_items = Auth::user()->projectItems; // Načtení položek přes relaci
 
@@ -113,7 +118,7 @@ class RequestController extends Controller
 
 
 
-        return view('requests.create', compact('projectItems', 'selectedProjectItem', 'customerUsers'));
+        return view('requests.create', compact('projectItems', 'selectedProjectItem', 'customerUsers', 'projectPriorities'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -151,6 +156,11 @@ class RequestController extends Controller
 
     public function show(TicketRequest $request): View
     {
+        $projectPriorities = DB::table('project_priorities')
+            ->select('project_priorities.*') // Ensure only project_priorities columns are selected
+            ->join('projects', 'project_priorities.id_project', '=', 'projects.id')
+            ->where('projects.state', 1)
+            ->get();
         $request->load([
             'projectItem.project.customer',
             'customerUser',
@@ -162,8 +172,10 @@ class RequestController extends Controller
             'reports' => function ($query) {
                 $query->orderBy('inserted', 'desc');
             },
-            'reports.user'
+            'reports.user',
+            'offers'
         ]);
+
 
         if ($request->messages->isNotEmpty()) {
             foreach ($request->messages as $message) {
@@ -177,14 +189,19 @@ class RequestController extends Controller
             }
         }
 
-        return view('requests.show', compact('request'));
+        return view('requests.show', compact('request', 'projectPriorities'));
     }
 
     public function edit(TicketRequest $request): View
     {
+        $projectPriorities = DB::table('project_priorities')
+            ->select('project_priorities.*') // Ensure only project_priorities columns are selected
+            ->join('projects', 'project_priorities.id_project', '=', 'projects.id')
+            ->where('projects.state', 1)
+            ->get();
         $request->load(['projectItem.project.customer', 'customerUser']);
 
-        return view('requests.edit', compact('request'));
+        return view('requests.edit', compact('request', 'projectPriorities'));
     }
 
     public function update(Request $httpRequest, TicketRequest $request): RedirectResponse

@@ -13,25 +13,21 @@
                         @csrf
                         @method('PUT')
 
-                      
                         <div>
                             <x-input-label for="projectitem" :value="__('Projektová položka')" />
                             <x-text-input id="projectitem" class="block mt-1 w-full bg-gray-100" type="text" :value="$request->projectItem->name . ' (' . $request->projectItem->project->name . ' - ' . $request->projectItem->project->customer->name . ')'" disabled />
                         </div>
-
 
                         <div class="mt-4">
                             <x-input-label for="custuser" :value="__('Zákaznický uživatel')" />
                             <x-text-input id="custuser" class="block mt-1 w-full bg-gray-100" type="text" :value="$request->customerUser->fname . ' ' . $request->customerUser->lname . ' (' . $request->customerUser->email . ')'" disabled />
                         </div>
 
-
                         <div class="mt-4">
                             <x-input-label for="name" :value="__('Název požadavku')" />
                             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $request->name)" required autofocus />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
-
 
                         <div class="mt-4">
                             <x-input-label for="state" :value="__('Stav')" />
@@ -45,13 +41,14 @@
                             <x-input-error :messages="$errors->get('state')" class="mt-2" />
                         </div>
 
-
                         <div class="mt-4">
                             <x-input-label for="kind" :value="__('Typ')" />
                             <select id="kind" name="kind" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
-                                <option value="1" {{ $request->kind == 1 ? 'selected' : '' }}>Standardní</option>
-                                <option value="2" {{ $request->kind == 2 ? 'selected' : '' }}>Chyba</option>
-                                <option value="3" {{ $request->kind == 3 ? 'selected' : '' }}>Prioritní</option>
+                                @foreach($projectPriorities as $priority)
+                                    <option value="{{ $priority->kind }}" {{ old('kind') == $priority->kind ? 'selected' : '' }}>
+                                        {{ $priority->name }}
+                                    </option>
+                                @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('kind')" class="mt-2" />
                         </div>

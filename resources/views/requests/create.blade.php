@@ -12,7 +12,6 @@
                     <form method="POST" action="{{ route('requests.store') }}">
                         @csrf
 
-
                         <div>
                             <x-input-label for="id_projectitem" :value="__('Projektová položka')" />
                             @if ($selectedProjectItem)
@@ -78,13 +77,15 @@
                             </select>
                             <x-input-error :messages="$errors->get('state')" class="mt-2" />
                         </div>
-
                         <div class="mt-4">
+
                             <x-input-label for="kind" :value="__('Typ')" />
                             <select id="kind" name="kind" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
-                                <option value="1" selected>Standardní</option>
-                                <option value="2">Chyba</option>
-                                <option value="3">Prioritní</option>
+                                @foreach($projectPriorities as $priority)
+                                    <option value="{{ $priority->kind }}" {{ old('kind') == $priority->kind ? 'selected' : '' }}>
+                                        {{ $priority->name }}
+                                    </option>
+                                @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('kind')" class="mt-2" />
                         </div>

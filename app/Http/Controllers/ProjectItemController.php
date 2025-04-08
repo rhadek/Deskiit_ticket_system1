@@ -104,7 +104,7 @@ class ProjectItemController extends Controller
         return redirect()->route('project_items.show', $projectItem)
             ->with('success', 'Položka byla úspěšně aktualizována.');
     }
-    
+
     public function destroy(ProjectItem $projectItem): RedirectResponse
     {
         $projectId = $projectItem->id_project;

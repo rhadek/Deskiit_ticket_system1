@@ -12,9 +12,7 @@
                     <h2 class="text-2xl font-bold mb-2">Dobrý den, {{ Auth::user()->fname }}!</h2>
                     <p class="text-gray-600">Vítejte v přehledu vašich projektů a požadavků.</p>
                 </div>
-
             </div>
-
 
             {{-- <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -65,7 +63,6 @@
             </div> --}}
 
             <div class="flex flex-col md:flex-row gap-6">
-
                 <div class="md:w-1/4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-4">
@@ -80,7 +77,6 @@
                                 @endif
                             </div>
                             <div class="space-y-2">
-
                                 <a href="{{ route('dashboard') }}" class="block p-2 {{ !request('project_id') ? 'bg-indigo-50 text-indigo-700 font-medium' : 'hover:bg-gray-100' }} rounded transition">
                                     <span class="flex items-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -89,7 +85,6 @@
                                         Všechny projekty
                                     </span>
                                 </a>
-
 
                                 @forelse ($projects as $project)
                                     <a href="{{ route('dashboard', ['project_id' => $project->id]) }}"
@@ -119,7 +114,6 @@
                                 </a>
                                 @endif
                             </div>
-
 
                             <div class="mb-6">
                                 <h4 class="font-medium text-gray-700 mb-2">Podle stavu:</h4>
@@ -281,4 +275,5 @@
             </div>
         </div>
     </div>
+
 </x-app-layout>

@@ -19,6 +19,7 @@ class Project extends Model
         'state',
         'kind',
         'name',
+        'description',
     ];
 
     public function customer()
@@ -29,5 +30,13 @@ class Project extends Model
     public function projectItems()
     {
         return $this->hasMany(ProjectItem::class, 'id_project');
+    }
+    public function projectPasswords()
+    {
+        return $this->hasMany(ProjectPassword::class, 'id_project');
+    }
+    public function projectPriorities()
+    {
+        return $this->hasMany(ProjectPriorities::class, 'id_project');
     }
 }

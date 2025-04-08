@@ -13,7 +13,7 @@
                         @csrf
                         @method('PUT')
 
-                        <div>
+                        <div class="hidden">
                             <x-input-label for="id_project" :value="__('Projekt')" />
                             <select id="id_project" name="id_project" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
                                 @foreach($projects as $project)

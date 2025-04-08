@@ -94,6 +94,7 @@
                     <div class="mt-4">
                         {{ $customerUsers->links() }}
                     </div>
+
                 </div>
             </div>
         </div>

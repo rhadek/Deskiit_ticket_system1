@@ -57,4 +57,8 @@ class Request extends Model
     {
         return $this->belongsToMany(Media::class, 'request_x_media', 'id_request', 'id_media');
     }
+    public function offers()
+    {
+        return $this->hasMany(RequestOffers::class, 'id_request');
+    }
 }

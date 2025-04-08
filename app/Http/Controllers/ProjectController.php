@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Middleware\IsAdmin;
+use App\Models\RequestReport;
 use Illuminate\Routing\Controller;
 
 class ProjectController extends Controller
@@ -46,6 +47,7 @@ class ProjectController extends Controller
             'name' => 'required|string|max:100',
             'state' => 'required|integer',
             'kind' => 'required|integer',
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $project = Project::create($validated);
@@ -61,10 +63,20 @@ class ProjectController extends Controller
 
     public function show(Project $project): View
     {
-        // Načíst související data pro projekt
-        $project->load(['customer', 'projectItems']);
+        $project->load(['customer', 'projectItems', 'projectPasswords', 'projectPriorities']);
+        $project->projectItems->load('requests');
+        $project->projectItems->each(function ($item) {
+            $item->requests->load('reports');
+        });
 
-        return view('projects.show', compact('project'));
+        $workTotalSum = $project->projectItems->reduce(function ($carry, $item) {
+            return $carry + $item->requests->reduce(function ($innerCarry, $request) {
+                return $innerCarry + $request->reports->sum('work_total');
+            }, 0);
+        }, 0);
+
+
+        return view('projects.show', compact('project', 'workTotalSum'));
     }
 
     public function edit(Project $project): View
@@ -75,11 +87,13 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project): RedirectResponse
     {
+
         $validated = $request->validate([
             'id_customer' => 'required|exists:customers,id',
             'name' => 'required|string|max:100',
             'state' => 'required|integer',
             'kind' => 'required|integer',
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $project->update($validated);

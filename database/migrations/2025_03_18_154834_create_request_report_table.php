@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamp('work_start')->nullable();
             $table->timestamp('work_end')->nullable();
             $table->integer('work_total');
-            $table->string('descript', 1000);
+            $table->string('description', 1000);
             $table->timestamps();
         });
     }
