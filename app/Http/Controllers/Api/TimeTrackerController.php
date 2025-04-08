@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class TimeTrackerController extends Controller
 {
@@ -56,45 +57,65 @@ class TimeTrackerController extends Controller
      */
     public function startTracking(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'id_request' => 'required|exists:requests,id',
-            'start_time' => 'required|date'
-        ]);
+        try {
+            $validated = $request->validate([
+                'id_request' => 'required|exists:requests,id',
+                'start_time' => 'required|date'
+            ]);
 
-        // Zkontrolovat, zda již nemáme aktivní session
-        $activeSession = TimeTrackerSession::where('id_user', Auth::id())
-            ->where('completed', false)
-            ->whereNull('end_time')
-            ->first();
+            // Získáme požadavek
+            $ticketRequest = TicketRequest::find($validated['id_request']);
+            if (!$ticketRequest) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Požadavek nebyl nalezen'
+                ], 404);
+            }
 
-        if ($activeSession) {
+            // Zkontrolovat, zda již nemáme aktivní session
+            $activeSession = TimeTrackerSession::where('id_user', Auth::id())
+                ->where('completed', false)
+                ->whereNull('end_time')
+                ->first();
+
+            if ($activeSession) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Již máte aktivní časovač',
+                    'active_session' => $activeSession
+                ], 400);
+            }
+
+            // Vytvořit novou časovou session
+            $session = TimeTrackerSession::create([
+                'id_request' => $validated['id_request'],
+                'id_user' => Auth::id(),
+                'start_time' => Carbon::parse($validated['start_time']),
+                'completed' => false,
+                'report_created' => false
+            ]);
+
+            $requestUpdated = false;
+
+            // Aktualizovat stav požadavku na "V řešení" (state = 2), pokud byl "Nový" (state = 1)
+            if ($ticketRequest->state == 1) {
+                $ticketRequest->update(['state' => 2]);
+                $requestUpdated = true;
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Časovač byl spuštěn',
+                'session' => $session,
+                'request_updated' => $requestUpdated
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in startTracking: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Již máte aktivní časovač',
-                'active_session' => $activeSession
-            ], 400);
+                'message' => 'Při spouštění časovače došlo k chybě: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Vytvořit novou časovou session
-        $session = TimeTrackerSession::create([
-            'id_request' => $validated['id_request'],
-            'id_user' => Auth::id(),
-            'start_time' => Carbon::parse($validated['start_time']),
-            'completed' => false
-        ]);
-
-        // Aktualizovat stav požadavku na "V řešení" (state = 2), pokud byl "Nový" (state = 1)
-        $ticketRequest = TicketRequest::find($validated['id_request']);
-        if ($ticketRequest->state == 1) {
-            $ticketRequest->update(['state' => 2]);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Časovač byl spuštěn',
-            'session' => $session,
-            'request_updated' => $ticketRequest->state == 2
-        ]);
     }
 
     /**
@@ -105,38 +126,46 @@ class TimeTrackerController extends Controller
      */
     public function stopTracking(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'id_request' => 'required|exists:requests,id',
-            'end_time' => 'required|date',
-            'total_minutes' => 'required|integer|min:1'
-        ]);
+        try {
+            $validated = $request->validate([
+                'id_request' => 'required|exists:requests,id',
+                'end_time' => 'required|date',
+                'total_minutes' => 'required|integer|min:1'
+            ]);
 
-        // Najít aktivní session
-        $session = TimeTrackerSession::where('id_user', Auth::id())
-            ->where('id_request', $validated['id_request'])
-            ->where('completed', false)
-            ->whereNull('end_time')
-            ->first();
+            // Najít aktivní session
+            $session = TimeTrackerSession::where('id_user', Auth::id())
+                ->where('id_request', $validated['id_request'])
+                ->where('completed', false)
+                ->whereNull('end_time')
+                ->first();
 
-        if (!$session) {
+            if (!$session) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Žádný aktivní časovač nebyl nalezen'
+                ], 404);
+            }
+
+            // Aktualizovat session
+            $session->update([
+                'end_time' => Carbon::parse($validated['end_time']),
+                'total_minutes' => $validated['total_minutes'],
+                'completed' => true
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Časovač byl zastaven',
+                'session' => $session
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in stopTracking: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Žádný aktivní časovač nebyl nalezen'
-            ], 404);
+                'message' => 'Při zastavení časovače došlo k chybě: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Aktualizovat session
-        $session->update([
-            'end_time' => Carbon::parse($validated['end_time']),
-            'total_minutes' => $validated['total_minutes'],
-            'completed' => true
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Časovač byl zastaven',
-            'session' => $session
-        ]);
     }
 
     /**
@@ -147,31 +176,39 @@ class TimeTrackerController extends Controller
      */
     public function cancelTracking(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'id_request' => 'required|exists:requests,id',
-        ]);
+        try {
+            $validated = $request->validate([
+                'id_request' => 'required|exists:requests,id',
+            ]);
 
-        // Najít aktivní session
-        $session = TimeTrackerSession::where('id_user', Auth::id())
-            ->where('id_request', $validated['id_request'])
-            ->where('completed', false)
-            ->whereNull('end_time')
-            ->first();
+            // Najít aktivní session
+            $session = TimeTrackerSession::where('id_user', Auth::id())
+                ->where('id_request', $validated['id_request'])
+                ->where('completed', false)
+                ->whereNull('end_time')
+                ->first();
 
-        if (!$session) {
+            if (!$session) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Žádný aktivní časovač nebyl nalezen'
+                ], 404);
+            }
+
+            // Smazat session
+            $session->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Časovač byl zrušen'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in cancelTracking: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Žádný aktivní časovač nebyl nalezen'
-            ], 404);
+                'message' => 'Při rušení časovače došlo k chybě: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Smazat session
-        $session->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Časovač byl zrušen'
-        ]);
     }
 
     /**
@@ -181,22 +218,61 @@ class TimeTrackerController extends Controller
      */
     public function getActiveSession(): JsonResponse
     {
-        $session = TimeTrackerSession::where('id_user', Auth::id())
-            ->where('completed', false)
-            ->whereNull('end_time')
-            ->with('request')
-            ->first();
+        try {
+            $session = TimeTrackerSession::where('id_user', Auth::id())
+                ->where('completed', false)
+                ->whereNull('end_time')
+                ->with('request')
+                ->first();
 
-        if (!$session) {
+            if (!$session) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Žádný aktivní časovač nebyl nalezen'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'session' => $session
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getActiveSession: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Žádný aktivní časovač nebyl nalezen'
-            ], 404);
+                'message' => 'Při získávání aktivní session došlo k chybě: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        return response()->json([
-            'success' => true,
-            'session' => $session
-        ]);
+    /**
+     * Check session status.
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function checkSession($id): JsonResponse
+    {
+        try {
+            $session = TimeTrackerSession::find($id);
+
+            if (!$session) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Session not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'session' => $session
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in checkSession: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Při kontrole session došlo k chybě: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

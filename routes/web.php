@@ -23,6 +23,7 @@ Route::prefix('api/time-tracker')->middleware('auth')->group(function () {
     Route::post('/stop', [App\Http\Controllers\Api\TimeTrackerController::class, 'stopTracking']);
     Route::post('/cancel', [App\Http\Controllers\Api\TimeTrackerController::class, 'cancelTracking']);
     Route::get('/active', [App\Http\Controllers\Api\TimeTrackerController::class, 'getActiveSession']);
+    Route::get('/check/{id}', [App\Http\Controllers\Api\TimeTrackerController::class, 'checkSession']);
 });
 
 Route::middleware(['auth:web,customer'])->group(function () {
