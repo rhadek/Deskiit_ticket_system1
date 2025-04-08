@@ -16,23 +16,33 @@
                             <x-input-label for="request" :value="__('Požadavek')" />
                             <x-text-input id="request" class="block mt-1 w-full bg-gray-100" type="text" value="{{ $ticketRequest->name }} ({{ $ticketRequest->projectItem->name }} - {{ $ticketRequest->projectItem->project->name }})" disabled />
                             <input type="hidden" name="id_request" value="{{ $ticketRequest->id }}">
+
+                            @if(isset($trackerSession))
+                                <input type="hidden" name="session_id" value="{{ $trackerSession->id }}">
+                                <div class="mt-1 text-sm text-green-600">
+                                    <span>Časy jsou předvyplněny z vašeho časovače.</span>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="mt-4">
                             <x-input-label for="work_start" :value="__('Začátek práce')" />
-                            <x-text-input id="work_start" class="block mt-1 w-full" type="datetime-local" name="work_start" :value="old('work_start')" required />
+                            <x-text-input id="work_start" class="block mt-1 w-full" type="datetime-local" name="work_start"
+                                :value="old('work_start', isset($trackerSession) ? $trackerSession->start_time->format('Y-m-d\TH:i') : null)" required />
                             <x-input-error :messages="$errors->get('work_start')" class="mt-2" />
                         </div>
 
                         <div class="mt-4">
                             <x-input-label for="work_end" :value="__('Konec práce')" />
-                            <x-text-input id="work_end" class="block mt-1 w-full" type="datetime-local" name="work_end" :value="old('work_end')" required />
+                            <x-text-input id="work_end" class="block mt-1 w-full" type="datetime-local" name="work_end"
+                                :value="old('work_end', isset($trackerSession) ? $trackerSession->end_time->format('Y-m-d\TH:i') : null)" required />
                             <x-input-error :messages="$errors->get('work_end')" class="mt-2" />
                         </div>
 
                         <div class="mt-4">
                             <x-input-label for="work_total" :value="__('Celkový čas (minuty)')" />
-                            <x-text-input id="work_total" class="block mt-1 w-full" type="number" name="work_total" :value="old('work_total')" required min="1" />
+                            <x-text-input id="work_total" class="block mt-1 w-full" type="number" name="work_total"
+                                :value="old('work_total', isset($trackerSession) ? $trackerSession->total_minutes : null)" required min="1" />
                             <x-input-error :messages="$errors->get('work_total')" class="mt-2" />
                         </div>
 

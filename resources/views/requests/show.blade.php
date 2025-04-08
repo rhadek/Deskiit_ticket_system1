@@ -594,7 +594,7 @@
                         @endforelse
                     </div>
 
-
+                    
 
                     <!-- Formulář pro přidání nové zprávy -->
                     @if ($request->state != 5)
@@ -644,7 +644,7 @@
                 </div>
             </div>
 
-            
+
 
             <!-- Sekce pro reporty práce -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">

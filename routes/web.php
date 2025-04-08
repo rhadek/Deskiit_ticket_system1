@@ -17,7 +17,13 @@ use App\Http\Controllers\ProjectPasswordController;
 
 
 
-
+// Time Tracker API Routes
+Route::prefix('api/time-tracker')->middleware('auth')->group(function () {
+    Route::post('/start', [App\Http\Controllers\Api\TimeTrackerController::class, 'startTracking']);
+    Route::post('/stop', [App\Http\Controllers\Api\TimeTrackerController::class, 'stopTracking']);
+    Route::post('/cancel', [App\Http\Controllers\Api\TimeTrackerController::class, 'cancelTracking']);
+    Route::get('/active', [App\Http\Controllers\Api\TimeTrackerController::class, 'getActiveSession']);
+});
 
 Route::middleware(['auth:web,customer'])->group(function () {
     Route::post('/media', [MediaController::class, 'store'])->name('media.store');

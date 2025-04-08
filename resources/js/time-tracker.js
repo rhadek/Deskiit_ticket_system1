@@ -1,4 +1,3 @@
-
 import TimeTracker from './components/TimeTracker';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -38,90 +37,135 @@ function initTimeTracker() {
     const summaryTotal = document.getElementById('timeTracker_summary_total');
     const summaryMinutes = document.getElementById('timeTracker_summary_minutes');
 
+    // Přidat indikátor načítání
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.id = 'timeTracker_loading';
+    loadingIndicator.className = 'hidden';
+    loadingIndicator.innerHTML = '<div class="inline-block animate-spin h-4 w-4 border-2 border-indigo-500 border-t-transparent rounded-full mr-2"></div><span>Načítání...</span>';
+    trackerComponent.appendChild(loadingIndicator);
+
     TimeTracker.onUpdate(function(formattedTime) {
         if (timerElement) {
             timerElement.textContent = formattedTime;
         }
     });
 
-    const activeSessionData = TimeTracker.checkForActiveSession();
-    if (activeSessionData) {
-        if (activeControls) activeControls.classList.remove('hidden');
-        if (startBtn) startBtn.classList.add('hidden');
-        if (activeSession) activeSession.classList.remove('hidden');
-        if (requestInfo) requestInfo.classList.remove('hidden');
+    // Kontrola aktivní session
+    checkActiveSession();
 
-        fetchRequestName(activeSessionData.requestId).then(nameData => {
-            const name = nameData?.name || `Požadavek #${activeSessionData.requestId}`;
-            if (requestNameElement) requestNameElement.textContent = name;
+    async function checkActiveSession() {
+        showLoading(true);
 
-            if (currentRequestId && currentRequestId != activeSessionData.requestId) {
-                differentRequestWarning.classList.remove('hidden');
-            }
-        });
+        try {
+            const activeSessionData = await TimeTracker.checkForActiveSession();
 
-
-        if (timerElement) {
-            timerElement.textContent = activeSessionData.elapsedTime;
-        }
-    } else if (currentRequestId) {
-
-        if (requestNameElement) {
-            requestNameElement.textContent = currentRequestName || `Požadavek #${currentRequestId}`;
-        }
-        if (requestInfo) {
-            requestInfo.classList.remove('hidden');
-        }
-    }
-
-
-    if (startBtn) {
-        startBtn.addEventListener('click', function() {
-
-            const activeRequestId = currentRequestId || prompt('Zadejte ID požadavku, pro který chcete měřit čas:');
-
-            if (activeRequestId) {
-                TimeTracker.start(activeRequestId);
-
+            if (activeSessionData) {
                 if (activeControls) activeControls.classList.remove('hidden');
                 if (startBtn) startBtn.classList.add('hidden');
                 if (activeSession) activeSession.classList.remove('hidden');
                 if (requestInfo) requestInfo.classList.remove('hidden');
 
-                if (!currentRequestId) {
-                    fetchRequestName(activeRequestId).then(nameData => {
-                        const name = nameData?.name || `Požadavek #${activeRequestId}`;
-                        if (requestNameElement) requestNameElement.textContent = name;
-                    });
-                } else {
-                    if (requestNameElement) {
-                        requestNameElement.textContent = currentRequestName || `Požadavek #${currentRequestId}`;
+                fetchRequestName(activeSessionData.requestId).then(nameData => {
+                    const name = nameData?.name || `Požadavek #${activeSessionData.requestId}`;
+                    if (requestNameElement) requestNameElement.textContent = name;
+
+                    if (currentRequestId && currentRequestId != activeSessionData.requestId) {
+                        differentRequestWarning.classList.remove('hidden');
                     }
+                });
+
+                if (timerElement) {
+                    timerElement.textContent = activeSessionData.elapsedTime;
+                }
+            } else if (currentRequestId) {
+                if (requestNameElement) {
+                    requestNameElement.textContent = currentRequestName || `Požadavek #${currentRequestId}`;
+                }
+                if (requestInfo) {
+                    requestInfo.classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Error checking active session:', error);
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    if (startBtn) {
+        startBtn.addEventListener('click', async function() {
+            showLoading(true);
+
+            try {
+                const activeRequestId = currentRequestId || prompt('Zadejte ID požadavku, pro který chcete měřit čas:');
+
+                if (activeRequestId) {
+                    const started = await TimeTracker.start(activeRequestId);
+
+                    if (started) {
+                        if (activeControls) activeControls.classList.remove('hidden');
+                        if (startBtn) startBtn.classList.add('hidden');
+                        if (activeSession) activeSession.classList.remove('hidden');
+                        if (requestInfo) requestInfo.classList.remove('hidden');
+
+                        if (!currentRequestId) {
+                            fetchRequestName(activeRequestId).then(nameData => {
+                                const name = nameData?.name || `Požadavek #${activeRequestId}`;
+                                if (requestNameElement) requestNameElement.textContent = name;
+                            });
+                        } else {
+                            if (requestNameElement) {
+                                requestNameElement.textContent = currentRequestName || `Požadavek #${currentRequestId}`;
+                            }
+                        }
+                    } else {
+                        alert('Nepodařilo se spustit časovač. Zkuste to prosím znovu.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error starting timer:', error);
+                alert('Při spouštění časovače došlo k chybě.');
+            } finally {
+                showLoading(false);
+            }
+        });
+    }
+
+    if (stopBtn) {
+        stopBtn.addEventListener('click', async function() {
+            showLoading(true);
+
+            try {
+                const result = await TimeTracker.stop();
+                if (result) {
+                    showReportModal(result);
+                }
+            } catch (error) {
+                console.error('Error stopping timer:', error);
+                alert('Při zastavení časovače došlo k chybě.');
+            } finally {
+                showLoading(false);
+            }
+        });
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', async function() {
+            if (confirm('Opravdu chcete zrušit měření času? Data budou ztracena.')) {
+                showLoading(true);
+
+                try {
+                    await TimeTracker.cancel();
+                    resetTimerUI();
+                } catch (error) {
+                    console.error('Error canceling timer:', error);
+                    alert('Při rušení časovače došlo k chybě.');
+                } finally {
+                    showLoading(false);
                 }
             }
         });
     }
-
-
-    if (stopBtn) {
-        stopBtn.addEventListener('click', function() {
-            const result = TimeTracker.stop();
-            if (result) {
-                showReportModal(result);
-            }
-        });
-    }
-
-
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', function() {
-            if (confirm('Opravdu chcete zrušit měření času? Data budou ztracena.')) {
-                TimeTracker.cancel();
-                resetTimerUI();
-            }
-        });
-    }
-
 
     if (saveReportBtn) {
         saveReportBtn.addEventListener('click', function() {
@@ -132,7 +176,6 @@ function initTimeTracker() {
             }
         });
     }
-
 
     if (cancelReportBtn) {
         cancelReportBtn.addEventListener('click', function() {
@@ -160,8 +203,22 @@ function initTimeTracker() {
         if (formWorkStart) formWorkStart.value = result.startTime.toISOString();
         if (formWorkEnd) formWorkEnd.value = result.endTime.toISOString();
 
-        const totalMinutes = Math.ceil(result.totalSeconds / 60);
+        const totalMinutes = result.totalMinutes;
         if (formWorkTotal) formWorkTotal.value = totalMinutes;
+
+        // Přidáme session ID pokud existuje
+        if (result.sessionId) {
+            // Kontrola, zda už existuje skryté pole pro session_id, pokud ne, vytvoříme ho
+            let sessionIdInput = document.getElementById('timeTracker_form_session_id');
+            if (!sessionIdInput) {
+                sessionIdInput = document.createElement('input');
+                sessionIdInput.type = 'hidden';
+                sessionIdInput.id = 'timeTracker_form_session_id';
+                sessionIdInput.name = 'session_id';
+                reportForm.appendChild(sessionIdInput);
+            }
+            sessionIdInput.value = result.sessionId;
+        }
 
         if (summaryStart) summaryStart.textContent = formatDateTime(result.startTime);
         if (summaryEnd) summaryEnd.textContent = formatDateTime(result.endTime);
@@ -172,10 +229,15 @@ function initTimeTracker() {
     }
 
     function saveReport() {
-
+        showLoading(true);
         const formData = new FormData(reportForm);
-
         formData.append('_token', formCsrfToken);
+
+        // Zkontrolovat, jestli existuje session_id k odeslání
+        const sessionIdInput = document.getElementById('timeTracker_form_session_id');
+        if (sessionIdInput && sessionIdInput.value) {
+            formData.append('session_id', sessionIdInput.value);
+        }
 
         fetch('/request-reports', {
             method: 'POST',
@@ -200,9 +262,7 @@ function initTimeTracker() {
         })
         .then(data => {
             if (reportModal) reportModal.classList.add('hidden');
-
             resetTimerUI();
-
             alert('Report byl úspěšně uložen!');
 
             if (window.location.href.includes('/requests/')) {
@@ -217,6 +277,9 @@ function initTimeTracker() {
             } else {
                 alert('Při ukládání reportu došlo k chybě: ' + error.message);
             }
+        })
+        .finally(() => {
+            showLoading(false);
         });
     }
 
@@ -254,5 +317,16 @@ function initTimeTracker() {
             minutes + 'm',
             secs + 's'
         ].join(' ');
+    }
+
+    function showLoading(isLoading) {
+        const loadingElement = document.getElementById('timeTracker_loading');
+        if (loadingElement) {
+            if (isLoading) {
+                loadingElement.classList.remove('hidden');
+            } else {
+                loadingElement.classList.add('hidden');
+            }
+        }
     }
 }

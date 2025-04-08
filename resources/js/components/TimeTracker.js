@@ -1,4 +1,3 @@
-
 class TimeTracker {
     constructor() {
         this.isTracking = false;
@@ -7,34 +6,77 @@ class TimeTracker {
         this.timer = null;
         this.requestId = null;
         this.updateCallback = null;
+        this.apiBaseUrl = '/api/time-tracker';
+        this.sessionId = null;
     }
 
-    start(requestId) {
+    async start(requestId) {
         if (this.isTracking) return;
 
         this.isTracking = true;
         this.requestId = requestId;
         this.startTime = new Date();
 
-        localStorage.setItem('timeTracker_startTime', this.startTime.toISOString());
-        localStorage.setItem('timeTracker_requestId', this.requestId);
-        localStorage.setItem('timeTracker_isTracking', 'true');
-        localStorage.setItem('timeTracker_elapsedTime', '0');
+        try {
+            // Volání API pro zahájení trackování
+            const response = await fetch(`${this.apiBaseUrl}/start`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    id_request: this.requestId,
+                    start_time: this.startTime.toISOString()
+                })
+            });
 
-        this.timer = setInterval(() => {
-            this.elapsedTime = Math.floor((new Date() - this.startTime) / 1000);
-            localStorage.setItem('timeTracker_elapsedTime', this.elapsedTime.toString());
+            const data = await response.json();
 
-            if (this.updateCallback) {
-                this.updateCallback(this.formatTime(this.elapsedTime));
+            if (!response.ok) {
+                console.error('API Error:', data.message);
+                this.isTracking = false;
+                return false;
             }
-        }, 1000);
 
-        console.log('TimeTracker started for request ID:', requestId);
-        return true;
+            // Uložení session ID
+            this.sessionId = data.session.id;
+
+            // Pokračovat v lokálním ukládání pro případ výpadku připojení
+            localStorage.setItem('timeTracker_startTime', this.startTime.toISOString());
+            localStorage.setItem('timeTracker_requestId', this.requestId);
+            localStorage.setItem('timeTracker_isTracking', 'true');
+            localStorage.setItem('timeTracker_elapsedTime', '0');
+            localStorage.setItem('timeTracker_sessionId', this.sessionId);
+
+            this.timer = setInterval(() => {
+                this.elapsedTime = Math.floor((new Date() - this.startTime) / 1000);
+                localStorage.setItem('timeTracker_elapsedTime', this.elapsedTime.toString());
+
+                if (this.updateCallback) {
+                    this.updateCallback(this.formatTime(this.elapsedTime));
+                }
+            }, 1000);
+
+            console.log('TimeTracker started for request ID:', requestId, 'Session ID:', this.sessionId);
+
+            // Pokud byl změněn stav požadavku, reloadnout stránku
+            if (data.request_updated) {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Error starting time tracker:', error);
+            this.isTracking = false;
+            return false;
+        }
     }
 
-    stop() {
+    async stop() {
         if (!this.isTracking) return null;
 
         clearInterval(this.timer);
@@ -42,42 +84,102 @@ class TimeTracker {
 
         const endTime = new Date();
         const totalTime = Math.floor((endTime - this.startTime) / 1000);
+        const totalMinutes = Math.ceil(totalTime / 60); // Zaokrouhleno nahoru
+
+        try {
+            // Volání API pro ukončení trackování
+            const response = await fetch(`${this.apiBaseUrl}/stop`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    id_request: this.requestId,
+                    end_time: endTime.toISOString(),
+                    total_minutes: totalMinutes
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error('API Error:', data.message);
+                // Pokračujeme i při chybě, aby uživatel mohl dokončit report
+            }
+        } catch (error) {
+            console.error('Error stopping time tracker:', error);
+            // Pokračujeme i při chybě, aby uživatel mohl dokončit report
+        }
+
         const result = {
             requestId: this.requestId,
             startTime: this.startTime,
             endTime: endTime,
-            totalSeconds: totalTime
+            totalSeconds: totalTime,
+            totalMinutes: totalMinutes,
+            sessionId: this.sessionId
         };
 
+        // Vyčistit lokální úložiště
         localStorage.removeItem('timeTracker_startTime');
         localStorage.removeItem('timeTracker_requestId');
         localStorage.removeItem('timeTracker_isTracking');
         localStorage.removeItem('timeTracker_elapsedTime');
+        localStorage.removeItem('timeTracker_sessionId');
 
         this.timer = null;
         this.startTime = null;
         this.elapsedTime = 0;
         this.requestId = null;
+        this.sessionId = null;
 
         console.log('TimeTracker stopped with result:', result);
         return result;
     }
 
-    cancel() {
+    async cancel() {
         if (!this.isTracking) return false;
 
         clearInterval(this.timer);
         this.isTracking = false;
 
+        try {
+            // Volání API pro zrušení trackování
+            const response = await fetch(`${this.apiBaseUrl}/cancel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    id_request: this.requestId
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error('API Error:', data.message);
+            }
+        } catch (error) {
+            console.error('Error canceling time tracker:', error);
+        }
+
+        // Vyčistit lokální úložiště
         localStorage.removeItem('timeTracker_startTime');
         localStorage.removeItem('timeTracker_requestId');
         localStorage.removeItem('timeTracker_isTracking');
         localStorage.removeItem('timeTracker_elapsedTime');
+        localStorage.removeItem('timeTracker_sessionId');
 
         this.timer = null;
         this.startTime = null;
         this.elapsedTime = 0;
         this.requestId = null;
+        this.sessionId = null;
 
         console.log('TimeTracker cancelled');
         return true;
@@ -95,11 +197,55 @@ class TimeTracker {
         ].join(':');
     }
 
-    checkForActiveSession() {
+    async checkForActiveSession() {
+        // Nejprve zkusíme získat aktivní session z API
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/active`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.session) {
+                    this.sessionId = data.session.id;
+                    this.requestId = data.session.id_request;
+                    this.startTime = new Date(data.session.start_time);
+                    this.isTracking = true;
+
+                    // Výpočet uplynulého času
+                    this.elapsedTime = Math.floor((new Date() - this.startTime) / 1000);
+
+                    // Nastavení timeru
+                    this.timer = setInterval(() => {
+                        this.elapsedTime = Math.floor((new Date() - this.startTime) / 1000);
+
+                        if (this.updateCallback) {
+                            this.updateCallback(this.formatTime(this.elapsedTime));
+                        }
+                    }, 1000);
+
+                    console.log('Restored active TimeTracker session from API, request ID:', this.requestId);
+
+                    return {
+                        requestId: this.requestId,
+                        elapsedTime: this.formatTime(this.elapsedTime),
+                        sessionId: this.sessionId
+                    };
+                }
+            }
+        } catch (error) {
+            console.warn('Could not fetch active session from API, trying localStorage fallback');
+        }
+
+        // Fallback na localStorage
         const isTracking = localStorage.getItem('timeTracker_isTracking') === 'true';
         if (isTracking) {
             const startTimeStr = localStorage.getItem('timeTracker_startTime');
             this.requestId = localStorage.getItem('timeTracker_requestId');
+            this.sessionId = localStorage.getItem('timeTracker_sessionId');
 
             if (!startTimeStr || !this.requestId) {
                 this.cancel();
@@ -131,11 +277,12 @@ class TimeTracker {
                 }
             }, 1000);
 
-            console.log('Restored active TimeTracker session for request ID:', this.requestId);
+            console.log('Restored active TimeTracker session from localStorage, request ID:', this.requestId);
 
             return {
                 requestId: this.requestId,
-                elapsedTime: this.formatTime(this.elapsedTime)
+                elapsedTime: this.formatTime(this.elapsedTime),
+                sessionId: this.sessionId
             };
         }
 
@@ -150,6 +297,7 @@ class TimeTracker {
         return {
             isTracking: this.isTracking,
             requestId: this.requestId,
+            sessionId: this.sessionId,
             elapsedTime: this.elapsedTime,
             formattedTime: this.formatTime(this.elapsedTime)
         };
