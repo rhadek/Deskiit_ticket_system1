@@ -21,32 +21,40 @@ class TimeTrackerController extends Controller
      */
     public function getRequestName($id): JsonResponse
     {
-        $request = TicketRequest::with(['projectItem.project', 'customerUser'])
-            ->find($id);
+        try {
+            $request = TicketRequest::with(['projectItem.project', 'customerUser'])
+                ->find($id);
 
-        if (!$request) {
+            if (!$request) {
+                return response()->json([
+                    'name' => null,
+                    'message' => 'Request not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'id' => $request->id,
+                'name' => $request->name,
+                'projectItem' => [
+                    'id' => $request->projectItem->id,
+                    'name' => $request->projectItem->name
+                ],
+                'project' => [
+                    'id' => $request->projectItem->project->id,
+                    'name' => $request->projectItem->project->name
+                ],
+                'customer' => [
+                    'id' => $request->projectItem->project->customer->id,
+                    'name' => $request->projectItem->project->customer->name
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getRequestName: ' . $e->getMessage());
             return response()->json([
                 'name' => null,
-                'message' => 'Request not found'
-            ], 404);
+                'message' => 'Error getting request details: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'id' => $request->id,
-            'name' => $request->name,
-            'projectItem' => [
-                'id' => $request->projectItem->id,
-                'name' => $request->projectItem->name
-            ],
-            'project' => [
-                'id' => $request->projectItem->project->id,
-                'name' => $request->projectItem->project->name
-            ],
-            'customer' => [
-                'id' => $request->projectItem->project->customer->id,
-                'name' => $request->projectItem->project->customer->name
-            ]
-        ]);
     }
 
     /**
@@ -263,9 +271,11 @@ class TimeTrackerController extends Controller
                 ], 404);
             }
 
+            // Přidáme timestamp pro zamezení cachování
             return response()->json([
                 'success' => true,
-                'session' => $session
+                'session' => $session,
+                'timestamp' => now()->timestamp
             ]);
         } catch (\Exception $e) {
             Log::error('Error in checkSession: ' . $e->getMessage());

@@ -124,7 +124,7 @@ class TimeTracker {
             // Nastavení intervalu pro synchronizaci s backend
             this.syncInterval = setInterval(() => {
                 this.checkSessionValidity();
-            }, 30000); // Kontrola každých 30 sekund
+            }, 10000); // Kontrola každých 10 sekund místo 30
 
             console.log('TimeTracker started for request ID:', requestId, 'Session ID:', this.sessionId);
 
@@ -279,7 +279,8 @@ class TimeTracker {
             const response = await fetch(`${this.apiBaseUrl}/active`, {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Cache-Control': 'no-cache, no-store'
                 }
             });
 
@@ -306,7 +307,7 @@ class TimeTracker {
                     // Nastavení intervalu pro synchronizaci s backend
                     this.syncInterval = setInterval(() => {
                         this.checkSessionValidity();
-                    }, 30000); // Kontrola každých 30 sekund
+                    }, 10000); // Kontrola každých 10 sekund
 
                     console.log('Restored active TimeTracker session from API, request ID:', this.requestId);
 
@@ -361,7 +362,7 @@ class TimeTracker {
             // Nastavení intervalu pro synchronizaci s backend
             this.syncInterval = setInterval(() => {
                 this.checkSessionValidity();
-            }, 30000); // Kontrola každých 30 sekund
+            }, 10000); // Kontrola každých 10 sekund
 
             console.log('Restored active TimeTracker session from localStorage, request ID:', this.requestId);
 
@@ -394,14 +395,19 @@ class TimeTracker {
         if (!this.isTracking || !this.sessionId) return;
 
         try {
-            const response = await fetch(`${this.apiBaseUrl}/check/${this.sessionId}`, {
+            // Přidáme timestamp jako query parametr a Cache-Control hlavičky pro zamezení cachování
+            const response = await fetch(`${this.apiBaseUrl}/check/${this.sessionId}?t=${Date.now()}`, {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
                 }
             });
 
             const data = await response.json();
+            console.log('Session check response:', data);
 
             // Pokud session už neexistuje nebo byla ukončena jinde
             if (!response.ok || !data.success || !data.session || data.session.completed) {

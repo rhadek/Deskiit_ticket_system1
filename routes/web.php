@@ -26,6 +26,10 @@ Route::prefix('api/time-tracker')->middleware('auth')->group(function () {
     Route::get('/check/{id}', [App\Http\Controllers\Api\TimeTrackerController::class, 'checkSession']);
 });
 
+Route::prefix('api')->group(function () {
+    Route::get('/requests/{id}/name', [App\Http\Controllers\Api\TimeTrackerController::class, 'getRequestName']);
+});
+
 Route::middleware(['auth:web,customer'])->group(function () {
     Route::post('/media', [MediaController::class, 'store'])->name('media.store');
 
