@@ -46,9 +46,11 @@
                                 <label for="filter_kind" class="block text-sm font-medium text-gray-700">Typ:</label>
                                 <select id="filter_kind" name="kind" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                     <option value="">Všechny</option>
-                                    <option value="1" {{ request()->query('kind') == '1' ? 'selected' : '' }}>Standardní</option>
-                                    <option value="2" {{ request()->query('kind') == '2' ? 'selected' : '' }}>Chyba</option>
-                                    <option value="3" {{ request()->query('kind') == '3' ? 'selected' : '' }}>Prioritní</option>
+                                    @foreach($projectPriorities as $priority)
+                                        <option value="{{ $priority->kind }}" {{ request()->query('kind') == $priority->kind ? 'selected' : '' }}>
+                                            {{ $priority->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -140,7 +142,7 @@
                         {{ $requests->links() }}
                     </div>
 
-                    
+
 
                 </div>
             </div>

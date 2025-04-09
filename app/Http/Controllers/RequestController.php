@@ -30,6 +30,11 @@ class RequestController extends Controller
     {
         $state = request('state');
         $kind = request('kind');
+        $projectPriorities = DB::table('project_priorities')
+            ->select('project_priorities.*') // Ensure only project_priorities columns are selected
+            ->join('projects', 'project_priorities.id_project', '=', 'projects.id')
+            ->where('projects.state', 1)
+            ->get();
 
         $requestsQuery = TicketRequest::with(['projectItem.project.customer', 'customerUser']);
 
@@ -48,7 +53,7 @@ class RequestController extends Controller
 
         $requests = $requestsQuery->paginate(10);
 
-        return view('requests.index', compact('requests'));
+        return view('requests.index', compact('requests', 'projectPriorities'));
     }
 
     public function projectItemRequests(ProjectItem $projectItem): View

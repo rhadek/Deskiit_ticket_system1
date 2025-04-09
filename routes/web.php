@@ -203,6 +203,8 @@ Route::prefix('customer')->group(function () {
                 ->name('customer.project_items.update');
             Route::delete('project-items/{projectItem}', [App\Http\Controllers\Customer\ProjectItemController::class, 'destroy'])
                 ->name('customer.project_items.destroy');
+            Route::get('project-items/{projectItem}/requests', [App\Http\Controllers\Customer\ProjectItemController::class, 'requests'])
+                ->name('customer.project_items.requests');
 
             Route::get('project-items/{projectItem}/assign-users', [App\Http\Controllers\Customer\ProjectItemController::class, 'assignUsers'])
                 ->name('customer.project_items.assign_users');

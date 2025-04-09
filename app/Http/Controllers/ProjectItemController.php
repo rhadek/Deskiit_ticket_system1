@@ -22,7 +22,13 @@ class ProjectItemController extends Controller
 
     public function index(): View
     {
-        $projectItems = ProjectItem::with('project.customer')->paginate(10);
+        if (auth()->user()->kind == 3) {
+            $projectItems = ProjectItem::with('project.customer')->paginate(10);
+        } else {
+            $projectItems = auth()->user()->projectItems()
+                ->with('project.customer')
+                ->paginate(10);
+        }
         return view('project_items.index', compact('projectItems'));
     }
 
